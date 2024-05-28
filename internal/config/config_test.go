@@ -3,7 +3,6 @@ package config
 import (
 	"log/slog"
 	"testing"
-	"time"
 )
 
 func TestLoadConfig_DefaultValues(t *testing.T) {
@@ -17,7 +16,6 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 		IP:                    "0.0.0.0",
 		Port:                  6969,
 		LogLevel:              slog.LevelInfo,
-		ScrapeInterval:        time.Minute * 5,
 		ZettelkastenDirectory: "/any/dir",
 	}
 	if c != expected {
@@ -38,7 +36,6 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 		IP:                    "0.0.0.0",
 		Port:                  4444,
 		LogLevel:              slog.LevelDebug,
-		ScrapeInterval:        time.Minute * 5,
 		ZettelkastenDirectory: "/any/dir",
 	}
 	if c != expected {
@@ -50,7 +47,6 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 	t.Setenv("IP", "127.0.0.1")
 	t.Setenv("PORT", "4444")
 	t.Setenv("LOG_LEVEL", "DEBUG")
-	t.Setenv("SCRAPE_INTERVAL", "5m")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	c, err := LoadConfig()
 	if err != nil {
@@ -61,7 +57,6 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 		IP:                    "127.0.0.1",
 		Port:                  4444,
 		LogLevel:              slog.LevelDebug,
-		ScrapeInterval:        time.Minute * 5,
 		ZettelkastenDirectory: "/any/dir",
 	}
 	if c != expected {
@@ -91,7 +86,6 @@ func TestLoadConfig_Validate(t *testing.T) {
 				"IP":                     "any-string",
 				"PORT":                   "4444",
 				"LOG_LEVEL":              "INFO",
-				"SCRAPE_INTERVAL":        "5m",
 				"ZETTELKASTEN_DIRECTORY": "/any/dir",
 			},
 		},
@@ -102,18 +96,6 @@ func TestLoadConfig_Validate(t *testing.T) {
 				"IP":                     "0.0.0.0",
 				"PORT":                   "-1",
 				"LOG_LEVEL":              "INFO",
-				"SCRAPE_INTERVAL":        "5m",
-				"ZETTELKASTEN_DIRECTORY": "/any/dir",
-			},
-		},
-		{
-			name:        "invalid interval",
-			shouldError: true,
-			env: map[string]string{
-				"IP":                     "0.0.0.0",
-				"PORT":                   "4444",
-				"LOG_LEVEL":              "INFO",
-				"SCRAPE_INTERVAL":        "5",
 				"ZETTELKASTEN_DIRECTORY": "/any/dir",
 			},
 		},
@@ -124,7 +106,6 @@ func TestLoadConfig_Validate(t *testing.T) {
 				"IP":                     "0.0.0.0",
 				"PORT":                   "4444",
 				"LOG_LEVEL":              "INFO",
-				"SCRAPE_INTERVAL":        "5m",
 				"ZETTELKASTEN_DIRECTORY": "/any/dir",
 			},
 		},
