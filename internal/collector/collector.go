@@ -57,6 +57,11 @@ func (c *Collector) CollectMetrics() error {
 }
 
 func (c *Collector) collectMetrics() (Metrics, error) {
+	_, err := os.Stat(c.config.Path)
+	if err != nil && os.IsNotExist(err) {
+		return Metrics{}, err
+	}
+
 	// FIXME: filepath.Glob does not support double star expansion,
 	// so this pattern is not searching recursivelly. We'll need to
 	// walk the filesystem recursivelly.
