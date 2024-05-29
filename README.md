@@ -9,7 +9,7 @@
 - [X] Register links per note
 - [X] Expose prometheus metrics endpoint
 - [X] Read config
-- [ ] Find all files recursivelly
+- [X] Find all files recursivelly
 - [ ] Configurable ignore file patterns
 - [ ] Handle uncreated links
 - [ ] Collect backlinks

@@ -1,9 +1,11 @@
 package collector
 
 import (
+	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"slices"
 	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
@@ -16,7 +18,8 @@ type Metrics struct {
 }
 
 type CollectorConfig struct {
-	Path string
+	Path           string
+	IgnorePatterns []string
 }
 
 type Collector struct {
@@ -31,7 +34,8 @@ func NewCollector(path string) (Collector, error) {
 
 	return Collector{
 		config: CollectorConfig{
-			Path: absolute_path,
+			Path:           absolute_path,
+			IgnorePatterns: []string{".obsidian"},
 		},
 	}, nil
 }
@@ -62,29 +66,38 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 		return Metrics{}, err
 	}
 
-	// FIXME: filepath.Glob does not support double star expansion,
-	// so this pattern is not searching recursivelly. We'll need to
-	// walk the filesystem recursivelly.
-	pattern := filepath.Join(c.config.Path, "**/*.md")
-	files, err := filepath.Glob(pattern)
-	if err != nil {
-		slog.Error("Error getting files", slog.Any("error", err))
-		return Metrics{}, err
-	}
-
-	noteCount := len(files)
+	noteCount := 0
 	linkCount := 0
 	notes := make(map[string]NoteMetrics)
 
-	for _, file := range files {
-		content, err := os.ReadFile(file)
+	filepath.WalkDir(c.config.Path, func(path string, d fs.DirEntry, err error) error {
+		// Skip all files in ignored directories
+		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
+			return filepath.SkipDir
+		}
+		// Skip other directories and non markdown files
+		if d.IsDir() || filepath.Ext(path) != ".md" {
+			return nil
+		}
+
+		content, err := os.ReadFile(path)
 		if err != nil {
 			slog.Error("Error reading file", slog.Any("error", err))
-			continue
+			return nil
 		}
 		metrics := CollectNoteMetrics(content)
-		notes[file] = metrics
+		notes[path] = metrics
 		linkCount += metrics.LinkCount
+		noteCount += 1
+
+		slog.Info("collected metrics from file", slog.String("path", path), slog.Any("d", d), slog.Any("err", err))
+
+		return nil
+	})
+
+	if err != nil {
+		slog.Error("Error getting files", slog.Any("error", err))
+		return Metrics{}, err
 	}
 
 	return Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
