@@ -10,10 +10,10 @@
 - [X] Expose prometheus metrics endpoint
 - [X] Read config
 - [X] Find all files recursivelly
-- [ ] Configurable ignore file patterns
-- [ ] Handle uncreated links
+- [X] Parse markdown links
+- [ ] Exclude links to non existing files
 - [ ] Collect backlinks
-- [ ] Parse markdown links
+- [ ] Configurable ignore file patterns
 - [ ] Get zettelkasten from git url
 - [ ] Support private repositories (Maybe with Github's PAT?)
 

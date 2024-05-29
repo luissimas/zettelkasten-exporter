@@ -6,6 +6,8 @@ require (
 	github.com/gookit/validate v1.5.2
 	github.com/knadh/koanf v1.5.0
 	github.com/prometheus/client_golang v1.19.1
+	github.com/yuin/goldmark v1.7.1
+	go.abhg.dev/goldmark/wikilink v0.5.0
 )
 
 require (
