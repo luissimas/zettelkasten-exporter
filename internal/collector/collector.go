@@ -51,7 +51,7 @@ func (c *Collector) CollectMetrics() error {
 
 	metrics.TotalNoteCount.Set(float64(collected.NoteCount))
 	for name, metric := range collected.Notes {
-		metrics.LinkCount.WithLabelValues(name).Set(float64(metric.LinkCount))
+		metrics.LinkCount.WithLabelValues(name).Set(float64(len(metric.Links)))
 	}
 
 	elapsed := time.Since(started)
@@ -87,7 +87,7 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 		}
 		metrics := CollectNoteMetrics(content)
 		notes[path] = metrics
-		linkCount += metrics.LinkCount
+		linkCount += len(metrics.Links)
 		noteCount += 1
 
 		slog.Info("collected metrics from file", slog.String("path", path), slog.Any("d", d), slog.Any("err", err))

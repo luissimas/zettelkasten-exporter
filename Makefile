@@ -21,4 +21,4 @@ build:
 	go build -o bin/$(BINARY_NAME) ./cmd/zettelkasten-exporter/main.go
 
 run: build
-	ZETTELKASTEN_DIRECTORY=~/Documents/vault ./bin/$(BINARY_NAME) 
+	ZETTELKASTEN_DIRECTORY=./sample ./bin/$(BINARY_NAME)

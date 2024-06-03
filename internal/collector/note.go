@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"log/slog"
 	"slices"
 
 	"github.com/yuin/goldmark"
@@ -16,23 +17,36 @@ var md = goldmark.New(
 )
 
 type NoteMetrics struct {
-	LinkCount int
+	Links map[string]int
 }
 
 func CollectNoteMetrics(content []byte) NoteMetrics {
-	return NoteMetrics{LinkCount: collectLinkCount(content)}
+	return NoteMetrics{Links: collectLinks(content)}
 }
 
-func collectLinkCount(content []byte) int {
+func collectLinks(content []byte) map[string]int {
 	linkKinds := []ast.NodeKind{ast.KindLink, wikilink.Kind}
 	reader := text.NewReader(content)
 	root := md.Parser().Parse(reader)
-	linkCount := 0
+	links := make(map[string]int)
 	ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering && slices.Contains(linkKinds, n.Kind()) {
-			linkCount += 1
+			var target string
+			switch v := n.(type) {
+			case *ast.Link:
+				target = string(v.Destination)
+			case *wikilink.Node:
+				target = string(v.Target)
+			}
+
+			v, ok := links[target]
+			if !ok {
+				links[target] = 0
+			}
+			links[target] = v + 1
 		}
 		return ast.WalkContinue, nil
 	})
-	return linkCount
+	slog.Info("Collected links", slog.Any("links", links))
+	return links
 }
