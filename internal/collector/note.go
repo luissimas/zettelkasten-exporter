@@ -36,7 +36,12 @@ func collectLinks(content []byte) map[string]int {
 			case *ast.Link:
 				target = string(v.Destination)
 			case *wikilink.Node:
+				if v.Embed {
+					return ast.WalkContinue, nil
+				}
 				target = string(v.Target)
+			default:
+				return ast.WalkContinue, nil
 			}
 
 			v, ok := links[target]

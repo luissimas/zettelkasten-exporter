@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/collector"
 	"github.com/luissimas/zettelkasten-exporter/internal/config"
@@ -20,11 +21,19 @@ func main() {
 	}
 	slog.Info("Loaded config", slog.Any("config", cfg))
 
-	collector, err := collector.NewCollector(cfg.ZettelkastenDirectory)
+	absolute_path, err := filepath.Abs(cfg.ZettelkastenDirectory)
 	if err != nil {
-		slog.Error("Error creating collector", slog.Any("error", err))
+		slog.Error("Error getting absolute path", slog.Any("error", err), slog.String("path", cfg.ZettelkastenDirectory))
 		os.Exit(1)
 	}
+	_, err = os.Stat(absolute_path)
+	if err != nil {
+		slog.Error("Cannot stat zettelkasten directory", slog.Any("error", err), slog.String("path", absolute_path))
+		os.Exit(1)
+	}
+
+	fs := os.DirFS(absolute_path)
+	collector := collector.NewCollector(fs)
 
 	promHandler := promhttp.Handler()
 	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

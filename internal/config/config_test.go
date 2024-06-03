@@ -3,6 +3,8 @@ package config
 import (
 	"log/slog"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadConfig_DefaultValues(t *testing.T) {
@@ -18,9 +20,7 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 		LogLevel:              slog.LevelInfo,
 		ZettelkastenDirectory: "/any/dir",
 	}
-	if c != expected {
-		t.Errorf("Expected %v, got: %v", expected, c)
-	}
+	assert.Equal(t, expected, c)
 }
 
 func TestLoadConfig_PartialEnv(t *testing.T) {
@@ -28,18 +28,14 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 	t.Setenv("LOG_LEVEL", "DEBUG")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	c, err := LoadConfig()
-	if err != nil {
-		t.Fatalf("Expected no error, got: %v", err)
-	}
-
-	expected := Config{
-		IP:                    "0.0.0.0",
-		Port:                  4444,
-		LogLevel:              slog.LevelDebug,
-		ZettelkastenDirectory: "/any/dir",
-	}
-	if c != expected {
-		t.Errorf("Expected %v, got: %v", expected, c)
+	if assert.NoError(t, err) {
+		expected := Config{
+			IP:                    "0.0.0.0",
+			Port:                  4444,
+			LogLevel:              slog.LevelDebug,
+			ZettelkastenDirectory: "/any/dir",
+		}
+		assert.Equal(t, expected, c)
 	}
 }
 
@@ -49,18 +45,14 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 	t.Setenv("LOG_LEVEL", "DEBUG")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	c, err := LoadConfig()
-	if err != nil {
-		t.Fatalf("Expected no error, got: %v", err)
-	}
-
-	expected := Config{
-		IP:                    "127.0.0.1",
-		Port:                  4444,
-		LogLevel:              slog.LevelDebug,
-		ZettelkastenDirectory: "/any/dir",
-	}
-	if c != expected {
-		t.Errorf("Expected %v, got: %v", expected, c)
+	if assert.NoError(t, err) {
+		expected := Config{
+			IP:                    "127.0.0.1",
+			Port:                  4444,
+			LogLevel:              slog.LevelDebug,
+			ZettelkastenDirectory: "/any/dir",
+		}
+		assert.Equal(t, expected, c)
 	}
 }
 

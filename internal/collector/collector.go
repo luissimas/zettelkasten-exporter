@@ -1,9 +1,9 @@
 package collector
 
 import (
+	"io"
 	"io/fs"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"slices"
 	"time"
@@ -18,7 +18,7 @@ type Metrics struct {
 }
 
 type CollectorConfig struct {
-	Path           string
+	FileSystem     fs.FS
 	IgnorePatterns []string
 }
 
@@ -26,18 +26,13 @@ type Collector struct {
 	config CollectorConfig
 }
 
-func NewCollector(path string) (Collector, error) {
-	absolute_path, err := filepath.Abs(path)
-	if err != nil {
-		return Collector{}, err
-	}
-
+func NewCollector(fileSystem fs.FS) Collector {
 	return Collector{
 		config: CollectorConfig{
-			Path:           absolute_path,
+			FileSystem:     fileSystem,
 			IgnorePatterns: []string{".obsidian"},
 		},
-	}, nil
+	}
 }
 
 func (c *Collector) CollectMetrics() error {
@@ -61,26 +56,22 @@ func (c *Collector) CollectMetrics() error {
 }
 
 func (c *Collector) collectMetrics() (Metrics, error) {
-	_, err := os.Stat(c.config.Path)
-	if err != nil && os.IsNotExist(err) {
-		return Metrics{}, err
-	}
-
 	noteCount := 0
 	linkCount := 0
 	notes := make(map[string]NoteMetrics)
 
-	filepath.WalkDir(c.config.Path, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(c.config.FileSystem, ".", func(path string, dir fs.DirEntry, err error) error {
 		// Skip all files in ignored directories
 		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
 			return filepath.SkipDir
 		}
 		// Skip other directories and non markdown files
-		if d.IsDir() || filepath.Ext(path) != ".md" {
+		if dir.IsDir() || filepath.Ext(path) != ".md" {
 			return nil
 		}
 
-		content, err := os.ReadFile(path)
+		f, err := c.config.FileSystem.Open(path)
+		content, err := io.ReadAll(f)
 		if err != nil {
 			slog.Error("Error reading file", slog.Any("error", err))
 			return nil
@@ -90,7 +81,7 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 		linkCount += len(metrics.Links)
 		noteCount += 1
 
-		slog.Info("collected metrics from file", slog.String("path", path), slog.Any("d", d), slog.Any("err", err))
+		slog.Info("collected metrics from file", slog.String("path", path), slog.Any("d", dir), slog.Any("err", err))
 
 		return nil
 	})

@@ -1,8 +1,9 @@
 package collector
 
 import (
-	"maps"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCollectNoteMetrics(t *testing.T) {
@@ -36,14 +37,17 @@ func TestCollectNoteMetrics(t *testing.T) {
 			content:  "[[target.md|link]]\n[link](target.md)\n[[link]]",
 			expected: NoteMetrics{Links: map[string]int{"target.md": 2, "link": 1}},
 		},
+		{
+			name:     "ignore embeddedlinks",
+			content:  "![[target.png]]\n!()[another.jpeg]\n[[link]]",
+			expected: NoteMetrics{Links: map[string]int{"link": 1}},
+		},
 	}
 
 	for _, d := range data {
 		t.Run(d.name, func(t *testing.T) {
 			result := CollectNoteMetrics([]byte(d.content))
-			if !maps.Equal(result.Links, d.expected.Links) {
-				t.Errorf("Expected %v, got %v", d.expected, result)
-			}
+			assert.Equal(t, d.expected.Links, result.Links)
 		})
 	}
 }
