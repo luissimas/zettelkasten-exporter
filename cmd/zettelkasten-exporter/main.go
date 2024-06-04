@@ -33,7 +33,7 @@ func main() {
 	}
 
 	fs := os.DirFS(absolute_path)
-	collector := collector.NewCollector(fs)
+	collector := collector.NewCollector(fs, cfg.IgnoreFiles)
 
 	promHandler := promhttp.Handler()
 	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

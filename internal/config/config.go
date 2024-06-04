@@ -13,8 +13,9 @@ import (
 type Config struct {
 	IP                    string     `koanf:"ip" validate:"required|ip"`
 	Port                  int        `koanf:"port" validate:"required|uint"`
-	LogLevel              slog.Level `koanf:"log_level"`
 	ZettelkastenDirectory string     `koanf:"zettelkasten_directory" validate:"required"`
+	LogLevel              slog.Level `koanf:"log_level"`
+	IgnoreFiles           []string   `koanf:"ignore_files"`
 }
 
 func LoadConfig() (Config, error) {
@@ -22,9 +23,10 @@ func LoadConfig() (Config, error) {
 
 	// Set default values
 	k.Load(structs.Provider(Config{
-		IP:       "0.0.0.0",
-		Port:     6969,
-		LogLevel: slog.LevelInfo,
+		IP:          "0.0.0.0",
+		Port:        6969,
+		LogLevel:    slog.LevelInfo,
+		IgnoreFiles: []string{".git", ".obsidian", ".trash"},
 	}, "koanf"), nil)
 
 	// Load env variables

@@ -26,11 +26,11 @@ type Collector struct {
 	config CollectorConfig
 }
 
-func NewCollector(fileSystem fs.FS) Collector {
+func NewCollector(fileSystem fs.FS, ignorePatterns []string) Collector {
 	return Collector{
 		config: CollectorConfig{
 			FileSystem:     fileSystem,
-			IgnorePatterns: []string{".obsidian"},
+			IgnorePatterns: ignorePatterns,
 		},
 	}
 }
@@ -61,9 +61,12 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 	notes := make(map[string]NoteMetrics)
 
 	err := fs.WalkDir(c.config.FileSystem, ".", func(path string, dir fs.DirEntry, err error) error {
-		// Skip all files in ignored directories
+		// Skip ignored files or directories
 		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
-			return filepath.SkipDir
+			if dir.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
 		}
 		// Skip other directories and non markdown files
 		if dir.IsDir() || filepath.Ext(path) != ".md" {

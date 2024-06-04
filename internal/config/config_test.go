@@ -19,6 +19,7 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 		Port:                  6969,
 		LogLevel:              slog.LevelInfo,
 		ZettelkastenDirectory: "/any/dir",
+		IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
 	}
 	assert.Equal(t, expected, c)
 }
@@ -34,6 +35,7 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 			Port:                  4444,
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
+			IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
 		}
 		assert.Equal(t, expected, c)
 	}
@@ -44,6 +46,7 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 	t.Setenv("PORT", "4444")
 	t.Setenv("LOG_LEVEL", "DEBUG")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
+	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
 	c, err := LoadConfig()
 	if assert.NoError(t, err) {
 		expected := Config{
@@ -51,6 +54,7 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 			Port:                  4444,
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
+			IgnoreFiles:           []string{".obsidian", "test", "/something/another", "dir/file.md"},
 		}
 		assert.Equal(t, expected, c)
 	}

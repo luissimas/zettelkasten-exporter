@@ -11,7 +11,7 @@
 - [X] Read config
 - [X] Find all files recursivelly
 - [X] Parse markdown links
-- [ ] Configurable ignore file patterns
+- [X] Configurable ignore file patterns
 - [ ] Get zettelkasten from git url
 - [ ] Support private repositories (Maybe with Github's PAT?)
 - [ ] Exclude links to non existing files

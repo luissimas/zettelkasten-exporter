@@ -42,8 +42,12 @@ created-at: "2024-05-29"
 ---
 Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir1/two.md|full link with .md]]
 		`)},
+		"ignoredir/foo":         {Data: []byte("Foo contents")},
+		"ignoredir/bar":         {Data: []byte("Bar contents")},
+		"ignoredir/test.md":     {Data: []byte("Test.md contents")},
+		"zettel/dir1/ignore.md": {Data: []byte("Ignore.md contents")},
 	}
-	c := NewCollector(fs)
+	c := NewCollector(fs, []string{"ignore.md", "ignoredir"})
 	expected := Metrics{
 		NoteCount: 4,
 		LinkCount: 7,
