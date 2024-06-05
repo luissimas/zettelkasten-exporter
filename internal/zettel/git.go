@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/config"
 
@@ -40,21 +41,25 @@ func (g *GitZettel) Ensure() error {
 		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RepositoryPath))
 		return err
 	}
-	slog.Info("Git repository open", slog.Any("repo", repo))
+	slog.Debug("Git repository open", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 
 	w, err := repo.Worktree()
 	if err != nil {
-		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err), slog.Any("repo", repo))
+		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err), slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 		return err
 	}
 
-	slog.Info("Pulling from repository", slog.Any("repo", repo))
+	slog.Info("Pulling from repository", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
+	start := time.Now()
 	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
-	if err != nil {
-		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.Any("repo", repo))
+	if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		slog.Info("Already up to date with remote repository, no changes pulled", slog.Duration("duration", time.Since(start)))
+		return nil
+	} else if err != nil {
+		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 		return err
 	}
-
+	slog.Info("Pulled changes from repository", slog.Duration("duration", time.Since(start)))
 	return nil
 }
 

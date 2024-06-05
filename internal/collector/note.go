@@ -58,6 +58,6 @@ func collectLinks(content []byte) map[string]int {
 		}
 		return ast.WalkContinue, nil
 	})
-	slog.Info("Collected links", slog.Any("links", links))
+	slog.Debug("Collected links", slog.Any("links", links))
 	return links
 }

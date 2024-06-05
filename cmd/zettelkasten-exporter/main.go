@@ -20,7 +20,7 @@ func main() {
 		slog.Error("Error loading config", slog.Any("error", err))
 		os.Exit(1)
 	}
-	slog.Info("Loaded config", slog.Any("config", cfg))
+	slog.Debug("Loaded config", slog.Any("config", cfg))
 	zettelkasten := zettel.NewZettel(cfg)
 	err = zettelkasten.Ensure()
 	if err != nil {
@@ -31,9 +31,8 @@ func main() {
 	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles)
 	promHandler := promhttp.Handler()
 	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		started := time.Now()
 		slog.Info("Starting metrics collection")
-
+		started := time.Now()
 		zettelkasten.Ensure()
 		err := collector.CollectMetrics()
 		if err != nil {
