@@ -33,13 +33,18 @@ func main() {
 	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		slog.Info("Starting metrics collection")
 		started := time.Now()
-		zettelkasten.Ensure()
-		err := collector.CollectMetrics()
+		err := zettelkasten.Ensure()
 		if err != nil {
-			slog.Error("Error collecting zettelkasten metrics", slog.Any("error", err))
+			slog.Error("Error ensuring zettelkasten", slog.Any("error", err))
 			metrics.ExporterUp.Set(0)
 		} else {
-			metrics.ExporterUp.Set(1)
+			err = collector.CollectMetrics()
+			if err != nil {
+				slog.Error("Error collecting zettelkasten metrics", slog.Any("error", err))
+				metrics.ExporterUp.Set(0)
+			} else {
+				metrics.ExporterUp.Set(1)
+			}
 		}
 
 		elapsed := time.Since(started)
