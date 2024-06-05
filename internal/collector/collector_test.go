@@ -50,23 +50,24 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 	c := NewCollector(fs, []string{"ignore.md", "ignoredir"})
 	expected := Metrics{
 		NoteCount: 4,
-		LinkCount: 7,
+		LinkCount: 8,
 		Notes: map[string]NoteMetrics{
-			"zettel/one.md": {Links: map[string]int{
-				"./dir1/two.md": 2,
-			}},
-			"zettel/dir1/two.md": {Links: map[string]int{
-				"one": 1,
-			}},
-			"zettel/dir1/dir2/three.md": {Links: map[string]int{
-				"one": 1,
-				"two": 1,
-			}},
-			"zettel/four.md": {Links: map[string]int{
-				"./one.md":          1,
-				"./dir1/dir2/three": 1,
-				"./dir1/two.md":     1,
-			}},
+			"zettel/one.md": {
+				Links:     map[string]int{"./dir1/two.md": 2},
+				LinkCount: 2,
+			},
+			"zettel/dir1/two.md": {
+				Links:     map[string]int{"one": 1},
+				LinkCount: 1,
+			},
+			"zettel/dir1/dir2/three.md": {
+				Links:     map[string]int{"one": 1, "two": 1},
+				LinkCount: 2,
+			},
+			"zettel/four.md": {
+				Links:     map[string]int{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
+				LinkCount: 3,
+			},
 		},
 	}
 	metrics, err := c.collectMetrics()

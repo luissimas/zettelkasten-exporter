@@ -17,11 +17,17 @@ var md = goldmark.New(
 )
 
 type NoteMetrics struct {
-	Links map[string]int
+	Links     map[string]int
+	LinkCount int
 }
 
 func CollectNoteMetrics(content []byte) NoteMetrics {
-	return NoteMetrics{Links: collectLinks(content)}
+	links := collectLinks(content)
+	linkCount := 0
+	for _, v := range links {
+		linkCount += v
+	}
+	return NoteMetrics{Links: links, LinkCount: linkCount}
 }
 
 func collectLinks(content []byte) map[string]int {
