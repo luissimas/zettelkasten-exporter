@@ -19,7 +19,8 @@ var (
 		Help: "The count of links in the zettelkasten",
 	}, []string{"name"})
 	CollectionDuration = promauto.NewHistogram(prometheus.HistogramOpts{
-		Name: "zettelkasten_collection_duration",
-		Help: "The duration of the metrics collection",
+		Name:    "zettelkasten_collection_duration",
+		Help:    "The duration of the metrics collection",
+		Buckets: prometheus.LinearBuckets(1, 1000, 10),
 	})
 )
