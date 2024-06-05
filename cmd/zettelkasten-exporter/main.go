@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
-	"path/filepath"
+	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/collector"
 	"github.com/luissimas/zettelkasten-exporter/internal/config"
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
+	"github.com/luissimas/zettelkasten-exporter/internal/zettel"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
@@ -20,23 +21,20 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Info("Loaded config", slog.Any("config", cfg))
-
-	absolute_path, err := filepath.Abs(cfg.ZettelkastenDirectory)
+	zettelkasten := zettel.NewZettel(cfg)
+	err = zettelkasten.Ensure()
 	if err != nil {
-		slog.Error("Error getting absolute path", slog.Any("error", err), slog.String("path", cfg.ZettelkastenDirectory))
-		os.Exit(1)
-	}
-	_, err = os.Stat(absolute_path)
-	if err != nil {
-		slog.Error("Cannot stat zettelkasten directory", slog.Any("error", err), slog.String("path", absolute_path))
+		slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
 		os.Exit(1)
 	}
 
-	fs := os.DirFS(absolute_path)
-	collector := collector.NewCollector(fs, cfg.IgnoreFiles)
-
+	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles)
 	promHandler := promhttp.Handler()
 	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		started := time.Now()
+		slog.Info("Starting metrics collection")
+
+		zettelkasten.Ensure()
 		err := collector.CollectMetrics()
 		if err != nil {
 			slog.Error("Error collecting zettelkasten metrics", slog.Any("error", err))
@@ -44,6 +42,11 @@ func main() {
 		} else {
 			metrics.ExporterUp.Set(1)
 		}
+
+		elapsed := time.Since(started)
+		metrics.CollectionDuration.Observe(float64(elapsed))
+		slog.Info("Completed metrics collection", slog.Duration("duration", elapsed))
+
 		promHandler.ServeHTTP(w, r)
 	}))
 

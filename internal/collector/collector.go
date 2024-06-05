@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"path/filepath"
 	"slices"
-	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
 )
@@ -36,9 +35,6 @@ func NewCollector(fileSystem fs.FS, ignorePatterns []string) Collector {
 }
 
 func (c *Collector) CollectMetrics() error {
-	started := time.Now()
-	slog.Info("Starting metrics collection")
-
 	collected, err := c.collectMetrics()
 	if err != nil {
 		return err
@@ -49,9 +45,6 @@ func (c *Collector) CollectMetrics() error {
 		metrics.LinkCount.WithLabelValues(name).Set(float64(metric.LinkCount))
 	}
 
-	elapsed := time.Since(started)
-	metrics.CollectionDuration.Observe(float64(elapsed))
-	slog.Info("Completed metrics collection", slog.Duration("duration", elapsed))
 	return nil
 }
 

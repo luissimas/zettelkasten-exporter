@@ -19,6 +19,7 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 		Port:                  6969,
 		LogLevel:              slog.LevelInfo,
 		ZettelkastenDirectory: "/any/dir",
+		ZettelkastenGitBranch: "main",
 		IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
 	}
 	assert.Equal(t, expected, c)
@@ -35,13 +36,14 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 			Port:                  4444,
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
+			ZettelkastenGitBranch: "main",
 			IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
 		}
 		assert.Equal(t, expected, c)
 	}
 }
 
-func TestLoadConfig_FullEnv(t *testing.T) {
+func TestLoadConfig_FullEnvDirectory(t *testing.T) {
 	t.Setenv("IP", "127.0.0.1")
 	t.Setenv("PORT", "4444")
 	t.Setenv("LOG_LEVEL", "DEBUG")
@@ -54,6 +56,27 @@ func TestLoadConfig_FullEnv(t *testing.T) {
 			Port:                  4444,
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
+			ZettelkastenGitBranch: "main",
+			IgnoreFiles:           []string{".obsidian", "test", "/something/another", "dir/file.md"},
+		}
+		assert.Equal(t, expected, c)
+	}
+}
+
+func TestLoadConfig_FullEnvGit(t *testing.T) {
+	t.Setenv("IP", "127.0.0.1")
+	t.Setenv("PORT", "4444")
+	t.Setenv("LOG_LEVEL", "DEBUG")
+	t.Setenv("ZETTELKASTEN_GIT_URL", "https://github.com/user/zettel")
+	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
+	c, err := LoadConfig()
+	if assert.NoError(t, err) {
+		expected := Config{
+			IP:                    "127.0.0.1",
+			Port:                  4444,
+			LogLevel:              slog.LevelDebug,
+			ZettelkastenGitURL:    "https://github.com/user/zettel",
+			ZettelkastenGitBranch: "main",
 			IgnoreFiles:           []string{".obsidian", "test", "/something/another", "dir/file.md"},
 		}
 		assert.Equal(t, expected, c)
@@ -67,12 +90,23 @@ func TestLoadConfig_Validate(t *testing.T) {
 		env         map[string]string
 	}{
 		{
-			name:        "missing directory",
+			name:        "missing source",
 			shouldError: true,
 			env: map[string]string{
 				"IP":        "0.0.0.0",
 				"PORT":      "4444",
 				"LOG_LEVEL": "INFO",
+			},
+		},
+		{
+			name:        "both sources",
+			shouldError: true,
+			env: map[string]string{
+				"IP":                     "0.0.0.0",
+				"PORT":                   "4444",
+				"LOG_LEVEL":              "INFO",
+				"ZETTELKASTEN_DIRECTORY": "/any/dir",
+				"ZETTELKASTEN_GIT_URL":   "any-string",
 			},
 		},
 		{
@@ -99,10 +133,11 @@ func TestLoadConfig_Validate(t *testing.T) {
 			name:        "valid config",
 			shouldError: false,
 			env: map[string]string{
-				"IP":                     "0.0.0.0",
-				"PORT":                   "4444",
-				"LOG_LEVEL":              "INFO",
-				"ZETTELKASTEN_DIRECTORY": "/any/dir",
+				"IP":                      "0.0.0.0",
+				"PORT":                    "4444",
+				"LOG_LEVEL":               "INFO",
+				"ZETTELKASTEN_GIT_URL":    "any-url",
+				"ZETTELKASTEN_GIT_BRANCH": "any-branch",
 			},
 		},
 	}
