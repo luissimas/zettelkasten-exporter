@@ -36,14 +36,14 @@ func main() {
 		err := zettelkasten.Ensure()
 		if err != nil {
 			slog.Error("Error ensuring zettelkasten", slog.Any("error", err))
-			metrics.ExporterUp.Set(0)
+			metrics.CollectionSuccessful.Set(0)
 		} else {
 			err = collector.CollectMetrics()
 			if err != nil {
 				slog.Error("Error collecting zettelkasten metrics", slog.Any("error", err))
-				metrics.ExporterUp.Set(0)
+				metrics.CollectionSuccessful.Set(0)
 			} else {
-				metrics.ExporterUp.Set(1)
+				metrics.CollectionSuccessful.Set(1)
 			}
 		}
 

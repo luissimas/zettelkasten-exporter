@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	ExporterUp = promauto.NewGauge(prometheus.GaugeOpts{
-		Name: "zettelkasten_up",
-		Help: "Whether the last zettelkasten scrape was successful",
+	CollectionSuccessful = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "zettelkasten_collection_successful",
+		Help: "Whether the metrics collections were successful",
 	})
 	TotalNoteCount = promauto.NewGauge(prometheus.GaugeOpts{
 		Name: "zettelkasten_total_note_count",
