@@ -16,11 +16,11 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 
 	expected := Config{
 		IP:                    "0.0.0.0",
-		Port:                  6969,
+		Port:                  10018,
 		LogLevel:              slog.LevelInfo,
 		ZettelkastenDirectory: "/any/dir",
 		ZettelkastenGitBranch: "main",
-		IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
+		IgnoreFiles:           []string{".git", ".obsidian", ".trash", "README.md"},
 	}
 	assert.Equal(t, expected, c)
 }
@@ -37,7 +37,7 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
 			ZettelkastenGitBranch: "main",
-			IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
+			IgnoreFiles:           []string{".git", ".obsidian", ".trash", "README.md"},
 		}
 		assert.Equal(t, expected, c)
 	}

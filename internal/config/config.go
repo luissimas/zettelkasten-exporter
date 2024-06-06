@@ -27,9 +27,9 @@ func LoadConfig() (Config, error) {
 	// Set default values
 	k.Load(structs.Provider(Config{
 		IP:                    "0.0.0.0",
-		Port:                  6969,
+		Port:                  10018,
 		LogLevel:              slog.LevelInfo,
-		IgnoreFiles:           []string{".git", ".obsidian", ".trash"},
+		IgnoreFiles:           []string{".git", ".obsidian", ".trash", "README.md"},
 		ZettelkastenGitBranch: "main",
 	}, "koanf"), nil)
 
