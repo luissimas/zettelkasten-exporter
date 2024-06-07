@@ -2,6 +2,7 @@ package zettel
 
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -32,7 +33,7 @@ func (g *GitZettel) GetRoot() fs.FS {
 func (g *GitZettel) Ensure() error {
 	repo, err := git.PlainOpen(g.RepositoryPath)
 	if errors.Is(err, git.ErrRepositoryNotExists) {
-		repo, err = cloneGitRepository(g.Config.ZettelkastenGitURL, g.Config.ZettelkastenGitBranch, g.RepositoryPath)
+		repo, err = cloneRepository(g.Config.ZettelkastenGitURL, g.Config.ZettelkastenGitBranch, g.RepositoryPath)
 		if err != nil {
 			slog.Error("Unexpected error when cloning git repository", slog.Any("error", err), slog.String("path", g.RepositoryPath))
 			return err
@@ -43,27 +44,19 @@ func (g *GitZettel) Ensure() error {
 	}
 	slog.Debug("Git repository open", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 
-	w, err := repo.Worktree()
-	if err != nil {
-		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err), slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
-		return err
-	}
-
 	slog.Info("Pulling from repository", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 	start := time.Now()
-	err = w.Pull(&git.PullOptions{RemoteName: "origin"})
-	if errors.Is(err, git.NoErrAlreadyUpToDate) {
-		slog.Info("Already up to date with remote repository, no changes pulled", slog.Duration("duration", time.Since(start)))
-		return nil
-	} else if err != nil {
+	err = forcePullRepository(repo)
+	if err != nil {
 		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
 		return err
 	}
 	slog.Info("Pulled changes from repository", slog.Duration("duration", time.Since(start)))
+
 	return nil
 }
 
-func cloneGitRepository(url, branch, target string) (*git.Repository, error) {
+func cloneRepository(url, branch, target string) (*git.Repository, error) {
 	slog.Info("Cloning git repository", slog.String("url", url), slog.String("branch", branch), slog.String("target", target))
 	repo, err := git.PlainClone(target, false, &git.CloneOptions{
 		URL:           url,
@@ -77,4 +70,51 @@ func cloneGitRepository(url, branch, target string) (*git.Repository, error) {
 	}
 	slog.Info("Git repository cloned")
 	return repo, err
+}
+
+func forcePullRepository(repo *git.Repository) error {
+	w, err := repo.Worktree()
+	if err != nil {
+		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err))
+		return err
+	}
+
+	// NOTE: instead of just pulling, we fetch and then hard reset to
+	// account for the case of force pushes to the remote branch
+	err = repo.Fetch(&git.FetchOptions{})
+	if err != nil {
+		slog.Error("Unexpected error when fetching from git repository", slog.Any("error", err))
+		return err
+	}
+
+	head, err := repo.Head()
+	if err != nil {
+		slog.Error("Unexpected error when getting git repository head", slog.Any("error", err))
+		return err
+	}
+
+	branch, err := repo.Branch(head.Name().Short())
+	if err != nil {
+		slog.Error("Unexpected error when getting git repository branch", slog.Any("error", err))
+		return err
+	}
+
+	rev, err := repo.ResolveRevision(plumbing.Revision(fmt.Sprintf("remotes/%s/%s", branch.Remote, head.Name().Short())))
+	if err != nil {
+		slog.Error("Unexpected error when getting git repository remote revision", slog.Any("error", err))
+		return err
+	}
+
+	err = w.Reset(&git.ResetOptions{
+		Commit: *rev,
+		Mode:   git.HardReset,
+	})
+	if errors.Is(err, git.NoErrAlreadyUpToDate) {
+		slog.Info("Already up to date with remote repository, no changes pulled")
+		return nil
+	} else if err != nil {
+		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err))
+		return err
+	}
+	return nil
 }
