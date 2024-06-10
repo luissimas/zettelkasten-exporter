@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
-	"net/http"
 	"os"
 	"time"
 
@@ -11,7 +9,6 @@ import (
 	"github.com/luissimas/zettelkasten-exporter/internal/config"
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
 	"github.com/luissimas/zettelkasten-exporter/internal/zettel"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -21,6 +18,7 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Debug("Loaded config", slog.Any("config", cfg))
+	metrics.ConnectDatabase()
 	zettelkasten := zettel.NewZettel(cfg)
 	err = zettelkasten.Ensure()
 	if err != nil {
@@ -29,36 +27,13 @@ func main() {
 	}
 
 	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles)
-	promHandler := promhttp.Handler()
-	http.Handle("/metrics", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		slog.Info("Starting metrics collection")
-		started := time.Now()
-		err := zettelkasten.Ensure()
+
+	for {
+		err := collector.CollectMetrics()
 		if err != nil {
-			slog.Error("Error ensuring zettelkasten", slog.Any("error", err))
-			metrics.CollectionSuccessful.Set(0)
-		} else {
-			err = collector.CollectMetrics()
-			if err != nil {
-				slog.Error("Error collecting zettelkasten metrics", slog.Any("error", err))
-				metrics.CollectionSuccessful.Set(0)
-			} else {
-				metrics.CollectionSuccessful.Set(1)
-			}
+			slog.Error("Error collecting metrics", slog.Any("error", err))
+			os.Exit(1)
 		}
-
-		elapsed := time.Since(started)
-		metrics.CollectionDuration.Observe(float64(elapsed))
-		slog.Info("Completed metrics collection", slog.Duration("duration", elapsed))
-
-		promHandler.ServeHTTP(w, r)
-	}))
-
-	addr := fmt.Sprintf("%s:%d", cfg.IP, cfg.Port)
-	slog.Info("Starting HTTP server", slog.String("address", addr))
-	err = http.ListenAndServe(addr, nil)
-	if err != nil {
-		slog.Error("Error on HTTP server", slog.Any("error", err))
-		os.Exit(1)
+		time.Sleep(10 * time.Second)
 	}
 }

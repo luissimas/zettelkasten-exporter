@@ -43,9 +43,9 @@ func (c *Collector) CollectMetrics() error {
 		return err
 	}
 
-	metrics.TotalNoteCount.Set(float64(collected.NoteCount))
+	collectionTime := time.Now()
 	for name, metric := range collected.Notes {
-		metrics.LinkCount.WithLabelValues(name).Set(float64(metric.LinkCount))
+		metrics.RegisterNoteMetric(name, metric.LinkCount, collectionTime)
 	}
 	slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
 
