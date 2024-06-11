@@ -13,6 +13,7 @@ import (
 
 func main() {
 	cfg, err := config.LoadConfig()
+	slog.SetLogLoggerLevel(cfg.LogLevel)
 	if err != nil {
 		slog.Error("Error loading config", slog.Any("error", err))
 		os.Exit(1)
