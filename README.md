@@ -16,7 +16,8 @@ Prometheus exporter that collects statistics from your second brain.
 - [X] Configurable ignore file patterns
 - [X] Get zettelkasten from git url
 - [X] Register metrics on InfluxDB
-- [ ] Backfill data using git
+- [X] Make InfluxDB parameters configurable
+- [ ] Backfill data using git (only if bucket is empty)
 - [ ] Grafana dashboard
 - [ ] Docker compose example
 - [ ] Kubernetes example

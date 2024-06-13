@@ -19,7 +19,7 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Debug("Loaded config", slog.Any("config", cfg))
-	metrics.ConnectDatabase()
+	metrics.ConnectDatabase(cfg)
 	zettelkasten := zettel.NewZettel(cfg)
 	err = zettelkasten.Ensure()
 	if err != nil {
@@ -28,13 +28,12 @@ func main() {
 	}
 
 	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles)
-
 	for {
 		err := collector.CollectMetrics()
 		if err != nil {
 			slog.Error("Error collecting metrics", slog.Any("error", err))
 			os.Exit(1)
 		}
-		time.Sleep(10 * time.Second)
+		time.Sleep(cfg.CollectionInterval)
 	}
 }

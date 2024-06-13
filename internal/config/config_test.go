@@ -3,11 +3,16 @@ package config
 import (
 	"log/slog"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestLoadConfig_DefaultValues(t *testing.T) {
+	t.Setenv("INFLUXDB_URL", "http://localhost:8086")
+	t.Setenv("INFLUXDB_TOKEN", "any-token")
+	t.Setenv("INFLUXDB_ORG", "any-org")
+	t.Setenv("INFLUXDB_BUCKET", "any-bucket")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	c, err := LoadConfig()
 	if err != nil {
@@ -15,8 +20,11 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 	}
 
 	expected := Config{
-		IP:                    "0.0.0.0",
-		Port:                  10018,
+		InfluxDBURL:           "http://localhost:8086",
+		InfluxDBToken:         "any-token",
+		InfluxDBOrg:           "any-org",
+		InfluxDBBucket:        "any-bucket",
+		CollectionInterval:    time.Minute * 5,
 		LogLevel:              slog.LevelInfo,
 		ZettelkastenDirectory: "/any/dir",
 		ZettelkastenGitBranch: "main",
@@ -26,14 +34,20 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 }
 
 func TestLoadConfig_PartialEnv(t *testing.T) {
-	t.Setenv("PORT", "4444")
+	t.Setenv("INFLUXDB_URL", "http://localhost:8086")
+	t.Setenv("INFLUXDB_TOKEN", "any-token")
+	t.Setenv("INFLUXDB_ORG", "any-org")
+	t.Setenv("INFLUXDB_BUCKET", "any-bucket")
 	t.Setenv("LOG_LEVEL", "DEBUG")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	c, err := LoadConfig()
 	if assert.NoError(t, err) {
 		expected := Config{
-			IP:                    "0.0.0.0",
-			Port:                  4444,
+			InfluxDBURL:           "http://localhost:8086",
+			InfluxDBToken:         "any-token",
+			InfluxDBOrg:           "any-org",
+			InfluxDBBucket:        "any-bucket",
+			CollectionInterval:    time.Minute * 5,
 			LogLevel:              slog.LevelDebug,
 			ZettelkastenDirectory: "/any/dir",
 			ZettelkastenGitBranch: "main",
@@ -44,17 +58,23 @@ func TestLoadConfig_PartialEnv(t *testing.T) {
 }
 
 func TestLoadConfig_FullEnvDirectory(t *testing.T) {
-	t.Setenv("IP", "127.0.0.1")
-	t.Setenv("PORT", "4444")
-	t.Setenv("LOG_LEVEL", "DEBUG")
+	t.Setenv("INFLUXDB_URL", "http://localhost:8086")
+	t.Setenv("INFLUXDB_TOKEN", "any-token")
+	t.Setenv("INFLUXDB_ORG", "any-org")
+	t.Setenv("INFLUXDB_BUCKET", "any-bucket")
+	t.Setenv("COLLECTION_INTERVAL", "2h")
+	t.Setenv("LOG_LEVEL", "WARN")
 	t.Setenv("ZETTELKASTEN_DIRECTORY", "/any/dir")
 	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
 	c, err := LoadConfig()
 	if assert.NoError(t, err) {
 		expected := Config{
-			IP:                    "127.0.0.1",
-			Port:                  4444,
-			LogLevel:              slog.LevelDebug,
+			InfluxDBURL:           "http://localhost:8086",
+			InfluxDBToken:         "any-token",
+			InfluxDBOrg:           "any-org",
+			InfluxDBBucket:        "any-bucket",
+			CollectionInterval:    time.Hour * 2,
+			LogLevel:              slog.LevelWarn,
 			ZettelkastenDirectory: "/any/dir",
 			ZettelkastenGitBranch: "main",
 			IgnoreFiles:           []string{".obsidian", "test", "/something/another", "dir/file.md"},
@@ -64,17 +84,23 @@ func TestLoadConfig_FullEnvDirectory(t *testing.T) {
 }
 
 func TestLoadConfig_FullEnvGit(t *testing.T) {
-	t.Setenv("IP", "127.0.0.1")
-	t.Setenv("PORT", "4444")
-	t.Setenv("LOG_LEVEL", "DEBUG")
+	t.Setenv("INFLUXDB_URL", "http://localhost:8086")
+	t.Setenv("INFLUXDB_TOKEN", "any-token")
+	t.Setenv("INFLUXDB_ORG", "any-org")
+	t.Setenv("INFLUXDB_BUCKET", "any-bucket")
+	t.Setenv("COLLECTION_INTERVAL", "15m")
+	t.Setenv("LOG_LEVEL", "ERROR")
 	t.Setenv("ZETTELKASTEN_GIT_URL", "https://github.com/user/zettel")
 	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
 	c, err := LoadConfig()
 	if assert.NoError(t, err) {
 		expected := Config{
-			IP:                    "127.0.0.1",
-			Port:                  4444,
-			LogLevel:              slog.LevelDebug,
+			InfluxDBURL:           "http://localhost:8086",
+			InfluxDBToken:         "any-token",
+			InfluxDBOrg:           "any-org",
+			InfluxDBBucket:        "any-bucket",
+			CollectionInterval:    time.Minute * 15,
+			LogLevel:              slog.LevelError,
 			ZettelkastenGitURL:    "https://github.com/user/zettel",
 			ZettelkastenGitBranch: "main",
 			IgnoreFiles:           []string{".obsidian", "test", "/something/another", "dir/file.md"},
@@ -93,8 +119,6 @@ func TestLoadConfig_Validate(t *testing.T) {
 			name:        "missing source",
 			shouldError: true,
 			env: map[string]string{
-				"IP":        "0.0.0.0",
-				"PORT":      "4444",
 				"LOG_LEVEL": "INFO",
 			},
 		},
@@ -102,42 +126,22 @@ func TestLoadConfig_Validate(t *testing.T) {
 			name:        "both sources",
 			shouldError: true,
 			env: map[string]string{
-				"IP":                     "0.0.0.0",
-				"PORT":                   "4444",
 				"LOG_LEVEL":              "INFO",
 				"ZETTELKASTEN_DIRECTORY": "/any/dir",
 				"ZETTELKASTEN_GIT_URL":   "any-string",
 			},
 		},
 		{
-			name:        "invalid ip",
-			shouldError: true,
-			env: map[string]string{
-				"IP":                     "any-string",
-				"PORT":                   "4444",
-				"LOG_LEVEL":              "INFO",
-				"ZETTELKASTEN_DIRECTORY": "/any/dir",
-			},
-		},
-		{
-			name:        "invalid port",
-			shouldError: true,
-			env: map[string]string{
-				"IP":                     "0.0.0.0",
-				"PORT":                   "-1",
-				"LOG_LEVEL":              "INFO",
-				"ZETTELKASTEN_DIRECTORY": "/any/dir",
-			},
-		},
-		{
 			name:        "valid config",
 			shouldError: false,
 			env: map[string]string{
-				"IP":                      "0.0.0.0",
-				"PORT":                    "4444",
 				"LOG_LEVEL":               "INFO",
 				"ZETTELKASTEN_GIT_URL":    "any-url",
 				"ZETTELKASTEN_GIT_BRANCH": "any-branch",
+				"INFLUXDB_URL":            "http://localhost:8086",
+				"INFLUXDB_TOKEN":          "any-token",
+				"INFLUXDB_ORG":            "any-org",
+				"INFLUXDB_BUCKET":         "any-bucket",
 			},
 		},
 	}

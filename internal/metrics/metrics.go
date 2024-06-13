@@ -1,23 +1,18 @@
 package metrics
 
 import (
-	"os"
 	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/luissimas/zettelkasten-exporter/internal/config"
 )
 
 var influxDB api.WriteAPI
 
-func ConnectDatabase() {
-	// TODO: get values from config
-	token := os.Getenv("INFLUXDB_TOKEN")
-	url := "http://localhost:8086"
-	client := influxdb2.NewClient(url, token)
-	org := "default"
-	bucket := "zettelkasten"
-	influxDB = client.WriteAPI(org, bucket)
+func ConnectDatabase(cfg config.Config) {
+	client := influxdb2.NewClient(cfg.InfluxDBURL, string(cfg.InfluxDBToken))
+	influxDB = client.WriteAPI(cfg.InfluxDBOrg, cfg.InfluxDBBucket)
 }
 
 func RegisterNoteMetric(name string, linkCount int, timestamp time.Time) {
