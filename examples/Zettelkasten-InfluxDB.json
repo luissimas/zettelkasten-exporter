@@ -29,13 +29,14 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
             "align": "auto",
             "cellOptions": {
               "type": "auto"
             },
+            "filterable": true,
             "inspect": false
           },
           "mappings": [],
@@ -45,10 +46,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -56,7 +53,7 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 15,
         "w": 12,
         "x": 0,
         "y": 0
@@ -66,13 +63,20 @@
         "cellHeight": "sm",
         "footer": {
           "countRows": false,
+          "enablePagination": true,
           "fields": "",
           "reducer": [
             "sum"
           ],
           "show": true
         },
-        "showHeader": true
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Links"
+          }
+        ]
       },
       "pluginVersion": "11.0.0",
       "targets": [
@@ -81,7 +85,7 @@
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
-          "query": "from(bucket: \"zettelkasten\")\n|> range(start: -1d)\n|> last()\n|> group()",
+          "query": "from(bucket: v.defaultBucket)\n|> range(start: -1d)\n|> last()\n|> group()",
           "refId": "A"
         }
       ],
@@ -174,9 +178,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 24,
         "x": 0,
-        "y": 8
+        "y": 15
       },
       "id": 1,
       "options": {
@@ -198,7 +202,7 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
-          "query": "from(bucket: \"zettelkasten\")\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> distinct(column: column) |> count(),\n   column: \"name\",\n   createEmpty: false\n)",
+          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> distinct(column: column) |> count(),\n   column: \"name\",\n   createEmpty: false\n)",
           "refId": "A"
         }
       ],
@@ -262,10 +266,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 12,
+        "h": 9,
+        "w": 24,
         "x": 0,
-        "y": 16
+        "y": 23
       },
       "id": 2,
       "options": {
@@ -288,7 +292,7 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
-          "query": "from(bucket: \"zettelkasten\")\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> group(columns: [\"name\", \"_start\", \"_stop\"]) |> last() |> group(columns: [\"_start\", \"_stop\"]) |> sum(),\n   column: \"name\",\n   createEmpty: false\n)",
+          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> group(columns: [\"name\", \"_start\", \"_stop\"]) |> last() |> group(columns: [\"_start\", \"_stop\"]) |> sum(),\n   column: \"name\",\n   createEmpty: false\n)",
           "refId": "A"
         }
       ],
@@ -296,7 +300,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "5m",
+  "refresh": "",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -322,14 +326,14 @@
     ]
   },
   "time": {
-    "from": "now-30m",
-    "to": "now"
+    "from": "2020-10-16T16:54:40.570Z",
+    "to": "2024-06-11T02:28:17.168Z"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 4,
+  "version": 7,
   "weekStart": ""
 }
