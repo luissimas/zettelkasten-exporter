@@ -50,6 +50,7 @@ func collectLinks(content []byte) map[string]int {
 				return ast.WalkContinue, nil
 			}
 
+			// TODO: check if target is not a http link
 			v, ok := links[target]
 			if !ok {
 				links[target] = 0

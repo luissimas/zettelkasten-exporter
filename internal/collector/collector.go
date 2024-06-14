@@ -35,7 +35,7 @@ func NewCollector(fileSystem fs.FS, ignorePatterns []string) Collector {
 	}
 }
 
-func (c *Collector) CollectMetrics() error {
+func (c *Collector) CollectMetrics(collectionTime time.Time) error {
 	slog.Info("Collecting metrics")
 	start := time.Now()
 	collected, err := c.collectMetrics()
@@ -43,7 +43,6 @@ func (c *Collector) CollectMetrics() error {
 		return err
 	}
 
-	collectionTime := time.Now()
 	for name, metric := range collected.Notes {
 		metrics.RegisterNoteMetric(name, metric.LinkCount, collectionTime)
 	}
