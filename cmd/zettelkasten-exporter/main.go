@@ -21,15 +21,14 @@ func main() {
 	slog.Debug("Loaded config", slog.Any("config", cfg))
 	metrics.ConnectDatabase(cfg)
 	zettelkasten := zettel.NewZettel(cfg)
-	err = zettelkasten.Ensure()
-	if err != nil {
-		slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
-		os.Exit(1)
-	}
-
 	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles)
 	for {
-		err := collector.CollectMetrics()
+		err = zettelkasten.Ensure()
+		if err != nil {
+			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
+			os.Exit(1)
+		}
+		err = collector.CollectMetrics()
 		if err != nil {
 			slog.Error("Error collecting metrics", slog.Any("error", err))
 			os.Exit(1)
