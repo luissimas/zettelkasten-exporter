@@ -13,7 +13,6 @@ import (
 )
 
 type CollectorConfig struct {
-	FileSystem     fs.FS
 	IgnorePatterns []string
 }
 
@@ -22,20 +21,19 @@ type Collector struct {
 	storage storage.Storage
 }
 
-func NewCollector(fileSystem fs.FS, ignorePatterns []string, storage storage.Storage) Collector {
+func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	return Collector{
 		config: CollectorConfig{
-			FileSystem:     fileSystem,
 			IgnorePatterns: ignorePatterns,
 		},
 		storage: storage,
 	}
 }
 
-func (c *Collector) CollectMetrics(collectionTime time.Time) error {
+func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	slog.Info("Collecting metrics")
 	start := time.Now()
-	collected, err := c.collectMetrics()
+	collected, err := c.collectMetrics(root)
 	if err != nil {
 		return err
 	}
@@ -48,12 +46,12 @@ func (c *Collector) CollectMetrics(collectionTime time.Time) error {
 	return nil
 }
 
-func (c *Collector) collectMetrics() (metrics.Metrics, error) {
+func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 	noteCount := 0
 	linkCount := 0
 	notes := make(map[string]metrics.NoteMetrics)
 
-	err := fs.WalkDir(c.config.FileSystem, ".", func(path string, dir fs.DirEntry, err error) error {
+	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
 		// Skip ignored files or directories
 		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
 			if dir.IsDir() {
@@ -66,7 +64,7 @@ func (c *Collector) collectMetrics() (metrics.Metrics, error) {
 			return nil
 		}
 
-		f, err := c.config.FileSystem.Open(path)
+		f, err := root.Open(path)
 		content, err := io.ReadAll(f)
 		if err != nil {
 			slog.Error("Error reading file", slog.Any("error", err))

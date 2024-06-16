@@ -8,7 +8,7 @@ import (
 	"github.com/luissimas/zettelkasten-exporter/internal/collector"
 	"github.com/luissimas/zettelkasten-exporter/internal/config"
 	"github.com/luissimas/zettelkasten-exporter/internal/storage"
-	"github.com/luissimas/zettelkasten-exporter/internal/zettel"
+	"github.com/luissimas/zettelkasten-exporter/internal/zettelkasten"
 )
 
 func main() {
@@ -21,13 +21,18 @@ func main() {
 	slog.Debug("Loaded config", slog.Any("config", cfg))
 	storage := storage.NewInfluxDBStorage(cfg.InfluxDBURL, cfg.InfluxDBOrg, cfg.InfluxDBBucket, cfg.InfluxDBToken)
 
-	zettelkasten := zettel.NewZettel(cfg)
-	collector := collector.NewCollector(zettelkasten.GetRoot(), cfg.IgnoreFiles, storage)
-	err = zettelkasten.Ensure()
-	if err != nil {
-		slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
-		os.Exit(1)
+	var zet zettelkasten.Zettelkasten
+	if cfg.ZettelkastenGitURL != "" {
+		zet = zettelkasten.NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch)
+	} else {
+		zet = zettelkasten.NewLocalZettelkasten(cfg.ZettelkastenDirectory)
 	}
+	collector := collector.NewCollector(cfg.IgnoreFiles, storage)
+	// err = zet.Ensure()
+	// if err != nil {
+	// 	slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
+	// 	os.Exit(1)
+	// }
 	// TODO: check for empty bucket
 	// slog.Info("Walking history")
 	// start := time.Now()
@@ -38,12 +43,13 @@ func main() {
 	// }
 	// slog.Info("Collected historic metrics", slog.Duration("duration", time.Since(start)))
 	for {
-		err = zettelkasten.Ensure()
+		root := zet.GetRoot()
+		err = zet.Ensure()
 		if err != nil {
 			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
 			os.Exit(1)
 		}
-		err = collector.CollectMetrics(time.Now())
+		err = collector.CollectMetrics(root, time.Now())
 		if err != nil {
 			slog.Error("Error collecting metrics", slog.Any("error", err))
 			os.Exit(1)

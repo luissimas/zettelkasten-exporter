@@ -49,7 +49,7 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 		"ignoredir/test.md":     {Data: []byte("Test.md contents")},
 		"zettel/dir1/ignore.md": {Data: []byte("Ignore.md contents")},
 	}
-	c := NewCollector(fs, []string{"ignore.md", "ignoredir"}, storage.NewFakeStorage())
+	c := NewCollector([]string{"ignore.md", "ignoredir"}, storage.NewFakeStorage())
 	expected := metrics.Metrics{
 		NoteCount: 4,
 		LinkCount: 8,
@@ -72,7 +72,7 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 			},
 		},
 	}
-	metrics, err := c.collectMetrics()
+	metrics, err := c.collectMetrics(fs)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)

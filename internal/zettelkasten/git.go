@@ -1,4 +1,4 @@
-package zettel
+package zettelkasten
 
 import (
 	"errors"
@@ -8,48 +8,49 @@ import (
 	"os"
 	"time"
 
-	"github.com/luissimas/zettelkasten-exporter/internal/config"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 )
 
-type GitZettel struct {
-	Config         config.Config
-	RepositoryPath string
+// GitZettelkasten represents a Zettelkasten versioned using git.
+type GitZettelkasten struct {
+	RootPath string
+	URL      string
+	Branch   string
 }
 
-func NewGitZettel(cfg config.Config) *GitZettel {
-	return &GitZettel{RepositoryPath: "/tmp/zettelkasten-exporter", Config: cfg}
+// NewGitZettelkasten creates a new GitZettelkasten.
+func NewGitZettelkasten(url, branch string) GitZettelkasten {
+	return GitZettelkasten{RootPath: "/tmp/zettelkasten-exporter", URL: url, Branch: branch}
 }
 
 // GetRoot retrieves the root of the zettelkasten git repository
-func (g *GitZettel) GetRoot() fs.FS {
-	return os.DirFS(g.RepositoryPath)
+func (g GitZettelkasten) GetRoot() fs.FS {
+	return os.DirFS(g.RootPath)
 }
 
 // Ensure makes sure that the git repository is valid and updated with the
 // latest changes from the remote.
-func (g *GitZettel) Ensure() error {
-	repo, err := git.PlainOpen(g.RepositoryPath)
+func (g GitZettelkasten) Ensure() error {
+	repo, err := git.PlainOpen(g.RootPath)
 	if errors.Is(err, git.ErrRepositoryNotExists) {
-		repo, err = cloneRepository(g.Config.ZettelkastenGitURL, g.Config.ZettelkastenGitBranch, g.RepositoryPath)
+		repo, err = cloneRepository(g.URL, g.Branch, g.RootPath)
 		if err != nil {
-			slog.Error("Unexpected error when cloning git repository", slog.Any("error", err), slog.String("path", g.RepositoryPath))
+			slog.Error("Unexpected error when cloning git repository", slog.Any("error", err), slog.String("path", g.RootPath))
 			return err
 		}
 	} else if err != nil {
-		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RepositoryPath))
+		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RootPath))
 		return err
 	}
-	slog.Debug("Git repository open", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
+	slog.Debug("Git repository open", slog.String("url", g.URL), slog.String("branch", g.Branch))
 	w, err := repo.Worktree()
 	if err != nil {
 		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err))
 		return err
 	}
-	branch, err := repo.Branch(g.Config.ZettelkastenGitBranch)
+	branch, err := repo.Branch(g.Branch)
 	if err != nil {
 		slog.Error("Unexpected error when getting git repository branch", slog.Any("error", err))
 		return err
@@ -63,11 +64,11 @@ func (g *GitZettel) Ensure() error {
 
 	w.Reset(&git.ResetOptions{Commit: *rev})
 
-	slog.Info("Pulling from repository", slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
+	slog.Info("Pulling from repository", slog.String("url", g.URL), slog.String("branch", g.Branch))
 	start := time.Now()
 	err = forcePullRepository(repo)
 	if err != nil {
-		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.String("url", g.Config.ZettelkastenGitURL), slog.String("branch", g.Config.ZettelkastenGitBranch))
+		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.String("url", g.URL), slog.String("branch", g.Branch))
 		return err
 	}
 	slog.Info("Pulled changes from repository", slog.Duration("duration", time.Since(start)))
@@ -75,10 +76,11 @@ func (g *GitZettel) Ensure() error {
 	return nil
 }
 
-func (g *GitZettel) WalkHistory(walkFunc func(time.Time) error) error {
-	repo, err := git.PlainOpen(g.RepositoryPath)
+// WalkHistory calls `walkFunc` for each point in the zettelkasten history.
+func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
+	repo, err := git.PlainOpen(g.RootPath)
 	if err != nil {
-		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RepositoryPath))
+		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RootPath))
 		return err
 	}
 	w, err := repo.Worktree()
@@ -87,17 +89,17 @@ func (g *GitZettel) WalkHistory(walkFunc func(time.Time) error) error {
 		return err
 	}
 	log, err := repo.Log(&git.LogOptions{Order: git.LogOrderCommitterTime})
-	log.ForEach(func(c *object.Commit) error {
+	err = log.ForEach(func(c *object.Commit) error {
 		slog.Debug("Walking commit", slog.String("sha", c.Hash.String()), slog.String("message", c.Message), slog.Time("date", c.Committer.When))
 		w.Reset(&git.ResetOptions{Commit: c.Hash, Mode: git.HardReset})
-		err := walkFunc(c.Committer.When)
+		err := walkFunc(g.GetRoot(), c.Committer.When)
 		if err != nil {
 			slog.Error("Error when walking commit", slog.String("hash", c.Hash.String()), slog.Any("error", err))
 			return err
 		}
 		return nil
 	})
-	return nil
+	return err
 }
 
 func cloneRepository(url, branch, target string) (*git.Repository, error) {
