@@ -9,13 +9,8 @@ import (
 	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
+	"github.com/luissimas/zettelkasten-exporter/internal/storage"
 )
-
-type Metrics struct {
-	NoteCount int
-	LinkCount int
-	Notes     map[string]NoteMetrics
-}
 
 type CollectorConfig struct {
 	FileSystem     fs.FS
@@ -23,15 +18,17 @@ type CollectorConfig struct {
 }
 
 type Collector struct {
-	config CollectorConfig
+	config  CollectorConfig
+	storage storage.Storage
 }
 
-func NewCollector(fileSystem fs.FS, ignorePatterns []string) Collector {
+func NewCollector(fileSystem fs.FS, ignorePatterns []string, storage storage.Storage) Collector {
 	return Collector{
 		config: CollectorConfig{
 			FileSystem:     fileSystem,
 			IgnorePatterns: ignorePatterns,
 		},
+		storage: storage,
 	}
 }
 
@@ -44,17 +41,17 @@ func (c *Collector) CollectMetrics(collectionTime time.Time) error {
 	}
 
 	for name, metric := range collected.Notes {
-		metrics.RegisterNoteMetric(name, metric.LinkCount, collectionTime)
+		c.storage.WriteMetric(name, metric, collectionTime)
 	}
 	slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
 
 	return nil
 }
 
-func (c *Collector) collectMetrics() (Metrics, error) {
+func (c *Collector) collectMetrics() (metrics.Metrics, error) {
 	noteCount := 0
 	linkCount := 0
-	notes := make(map[string]NoteMetrics)
+	notes := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(c.config.FileSystem, ".", func(path string, dir fs.DirEntry, err error) error {
 		// Skip ignored files or directories
@@ -87,8 +84,8 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 
 	if err != nil {
 		slog.Error("Error getting files", slog.Any("error", err))
-		return Metrics{}, err
+		return metrics.Metrics{}, err
 	}
 
-	return Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
+	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
 }

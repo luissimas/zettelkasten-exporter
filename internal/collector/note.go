@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"slices"
 
+	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
 	"github.com/yuin/goldmark"
 	"github.com/yuin/goldmark/ast"
 	"github.com/yuin/goldmark/text"
@@ -16,18 +17,13 @@ var md = goldmark.New(
 	),
 )
 
-type NoteMetrics struct {
-	Links     map[string]int
-	LinkCount int
-}
-
-func CollectNoteMetrics(content []byte) NoteMetrics {
+func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
 	links := collectLinks(content)
 	linkCount := 0
 	for _, v := range links {
 		linkCount += v
 	}
-	return NoteMetrics{Links: links, LinkCount: linkCount}
+	return metrics.NoteMetrics{Links: links, LinkCount: linkCount}
 }
 
 func collectLinks(content []byte) map[string]int {
