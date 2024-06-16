@@ -36,6 +36,6 @@ func (i InfluxDBStorage) WriteMetric(noteName string, metric metrics.NoteMetrics
 }
 
 func (i InfluxDBStorage) IsEmpty() bool {
+	// TODO: fetch data from InfluxDB
 	return false
-
 }

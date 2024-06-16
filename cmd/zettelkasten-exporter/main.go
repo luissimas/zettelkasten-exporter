@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	// Setup
 	cfg, err := config.LoadConfig()
 	slog.SetLogLoggerLevel(cfg.LogLevel)
 	if err != nil {
@@ -20,35 +21,42 @@ func main() {
 	}
 	slog.Debug("Loaded config", slog.Any("config", cfg))
 	storage := storage.NewInfluxDBStorage(cfg.InfluxDBURL, cfg.InfluxDBOrg, cfg.InfluxDBBucket, cfg.InfluxDBToken)
-
+	collector := collector.NewCollector(cfg.IgnoreFiles, storage)
 	var zet zettelkasten.Zettelkasten
 	if cfg.ZettelkastenGitURL != "" {
 		zet = zettelkasten.NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch)
 	} else {
 		zet = zettelkasten.NewLocalZettelkasten(cfg.ZettelkastenDirectory)
 	}
-	collector := collector.NewCollector(cfg.IgnoreFiles, storage)
-	// err = zet.Ensure()
-	// if err != nil {
-	// 	slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
-	// 	os.Exit(1)
-	// }
-	// TODO: check for empty bucket
-	// slog.Info("Walking history")
-	// start := time.Now()
-	// err = zettelkasten.WalkHistory(collector.CollectMetrics)
-	// if err != nil {
-	// 	slog.Error("Error walking history", slog.Any("error", err))
-	// 	os.Exit(1)
-	// }
-	// slog.Info("Collected historic metrics", slog.Duration("duration", time.Since(start)))
-	for {
-		root := zet.GetRoot()
+
+	// Collect historical data
+	if storage.IsEmpty() {
+		slog.Info("Storage is empty, will collect historical metrics")
+		start := time.Now()
 		err = zet.Ensure()
 		if err != nil {
 			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
 			os.Exit(1)
 		}
+		slog.Info("Walking zettelkasten history")
+		err = zet.WalkHistory(collector.CollectMetrics)
+		if err != nil {
+			slog.Error("Error walking history", slog.Any("error", err))
+			os.Exit(1)
+		}
+		slog.Info("Collected historic metrics", slog.Duration("duration", time.Since(start)))
+	} else {
+		slog.Info("Storage is not empty, will skip collecting historical metrics")
+	}
+
+	// Periodic collection loop
+	for {
+		err = zet.Ensure()
+		if err != nil {
+			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
+			os.Exit(1)
+		}
+		root := zet.GetRoot()
 		err = collector.CollectMetrics(root, time.Now())
 		if err != nil {
 			slog.Error("Error collecting metrics", slog.Any("error", err))
