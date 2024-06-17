@@ -63,8 +63,14 @@ func (g GitZettelkasten) Ensure() error {
 		slog.Error("Unexpected error when getting git repository remote revision", slog.Any("error", err))
 		return err
 	}
-
-	w.Reset(&git.ResetOptions{Commit: *rev})
+	err = w.Reset(&git.ResetOptions{
+		Commit: *rev,
+		Mode:   git.HardReset,
+	})
+	if err != nil {
+		slog.Error("Unexpected error when reseting git repository", slog.Any("error", err))
+		return err
+	}
 
 	slog.Info("Pulling from repository", slog.String("url", g.URL), slog.String("branch", g.Branch))
 	start := time.Now()
@@ -85,6 +91,12 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 		slog.Error("Unexpected error when opening git repository", slog.Any("error", err), slog.String("path", g.RootPath))
 		return err
 	}
+	originalHead, err := repo.Head()
+	if err != nil {
+		slog.Error("Unexpected error when getting git repository head", slog.Any("error", err))
+		return err
+	}
+	originalHash := originalHead.Hash()
 	w, err := repo.Worktree()
 	if err != nil {
 		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err))
@@ -93,7 +105,14 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 	log, err := repo.Log(&git.LogOptions{Order: git.LogOrderCommitterTime})
 	err = log.ForEach(func(c *object.Commit) error {
 		slog.Debug("Walking commit", slog.String("sha", c.Hash.String()), slog.String("message", c.Message), slog.Time("date", c.Committer.When))
-		w.Reset(&git.ResetOptions{Commit: c.Hash, Mode: git.HardReset})
+		err = w.Reset(&git.ResetOptions{
+			Commit: c.Hash,
+			Mode:   git.HardReset,
+		})
+		if err != nil {
+			slog.Error("Unexpected error when reseting git repository", slog.Any("error", err))
+			return err
+		}
 		err := walkFunc(g.GetRoot(), c.Committer.When)
 		if err != nil {
 			slog.Error("Error when walking commit", slog.String("hash", c.Hash.String()), slog.Any("error", err))
@@ -101,7 +120,15 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 		}
 		return nil
 	})
-	return err
+	err = w.Reset(&git.ResetOptions{
+		Commit: *&originalHash,
+		Mode:   git.HardReset,
+	})
+	if err != nil {
+		slog.Error("Unexpected error when reseting git repository", slog.Any("error", err))
+		return err
+	}
+	return nil
 }
 
 func cloneRepository(url, branch, target, token string) (*git.Repository, error) {
@@ -147,7 +174,6 @@ func forcePullRepository(repo *git.Repository, token string) error {
 
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		slog.Info("Already up to date with remote repository, no changes pulled")
-		return nil
 	} else if err != nil {
 		slog.Error("Unexpected error when fetching from git repository", slog.Any("error", err))
 		return err
@@ -176,7 +202,7 @@ func forcePullRepository(repo *git.Repository, token string) error {
 		Mode:   git.HardReset,
 	})
 	if err != nil {
-		slog.Error("Unexpected error when reseting from git repository", slog.Any("error", err))
+		slog.Error("Unexpected error when reseting git repository", slog.Any("error", err))
 		return err
 	}
 	return nil
