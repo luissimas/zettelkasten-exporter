@@ -96,6 +96,8 @@ func TestLoadConfig_FullEnvGit(t *testing.T) {
 	t.Setenv("COLLECT_HISTORICAL_METRICS", "false")
 	t.Setenv("LOG_LEVEL", "ERROR")
 	t.Setenv("ZETTELKASTEN_GIT_URL", "https://github.com/user/zettel")
+	t.Setenv("ZETTELKASTEN_GIT_BRANCH", "any-branch")
+	t.Setenv("ZETTELKASTEN_GIT_TOKEN", "any-token")
 	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
 	c, err := LoadConfig()
 	if assert.NoError(t, err) {
@@ -108,7 +110,8 @@ func TestLoadConfig_FullEnvGit(t *testing.T) {
 			CollectHistoricalMetrics: false,
 			LogLevel:                 slog.LevelError,
 			ZettelkastenGitURL:       "https://github.com/user/zettel",
-			ZettelkastenGitBranch:    "main",
+			ZettelkastenGitBranch:    "any-branch",
+			ZettelkastenGitToken:     "any-token",
 			IgnoreFiles:              []string{".obsidian", "test", "/something/another", "dir/file.md"},
 		}
 		assert.Equal(t, expected, c)
@@ -144,6 +147,7 @@ func TestLoadConfig_Validate(t *testing.T) {
 				"LOG_LEVEL":                  "INFO",
 				"ZETTELKASTEN_GIT_URL":       "any-url",
 				"ZETTELKASTEN_GIT_BRANCH":    "any-branch",
+				"ZETTELKASTEN_GIT_TOKEN":     "any-token",
 				"COLLECTION_INTERVAL":        "15m",
 				"COLLECT_HISTORICAL_METRICS": "false",
 				"INFLUXDB_URL":               "http://localhost:8086",

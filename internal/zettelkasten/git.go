@@ -11,6 +11,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 // GitZettelkasten represents a Zettelkasten versioned using git.
@@ -18,11 +19,12 @@ type GitZettelkasten struct {
 	RootPath string
 	URL      string
 	Branch   string
+	Token    string
 }
 
 // NewGitZettelkasten creates a new GitZettelkasten.
-func NewGitZettelkasten(url, branch string) GitZettelkasten {
-	return GitZettelkasten{RootPath: "/tmp/zettelkasten-exporter", URL: url, Branch: branch}
+func NewGitZettelkasten(url, branch, token string) GitZettelkasten {
+	return GitZettelkasten{RootPath: "/tmp/zettelkasten-exporter", URL: url, Branch: branch, Token: token}
 }
 
 // GetRoot retrieves the root of the zettelkasten git repository
@@ -35,7 +37,7 @@ func (g GitZettelkasten) GetRoot() fs.FS {
 func (g GitZettelkasten) Ensure() error {
 	repo, err := git.PlainOpen(g.RootPath)
 	if errors.Is(err, git.ErrRepositoryNotExists) {
-		repo, err = cloneRepository(g.URL, g.Branch, g.RootPath)
+		repo, err = cloneRepository(g.URL, g.Branch, g.RootPath, g.Token)
 		if err != nil {
 			slog.Error("Unexpected error when cloning git repository", slog.Any("error", err), slog.String("path", g.RootPath))
 			return err
@@ -66,7 +68,7 @@ func (g GitZettelkasten) Ensure() error {
 
 	slog.Info("Pulling from repository", slog.String("url", g.URL), slog.String("branch", g.Branch))
 	start := time.Now()
-	err = forcePullRepository(repo)
+	err = forcePullRepository(repo, g.Token)
 	if err != nil {
 		slog.Error("Unexpected error when pulling from git repository", slog.Any("error", err), slog.String("url", g.URL), slog.String("branch", g.Branch))
 		return err
@@ -102,14 +104,21 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 	return err
 }
 
-func cloneRepository(url, branch, target string) (*git.Repository, error) {
+func cloneRepository(url, branch, target, token string) (*git.Repository, error) {
 	slog.Info("Cloning git repository", slog.String("url", url), slog.String("branch", branch), slog.String("target", target))
-	repo, err := git.PlainClone(target, false, &git.CloneOptions{
+	cloneOptions := git.CloneOptions{
 		URL:           url,
 		Depth:         1,
 		SingleBranch:  true,
 		ReferenceName: plumbing.NewBranchReferenceName(branch),
-	})
+	}
+	if token != "" {
+		cloneOptions.Auth = &http.BasicAuth{
+			Username: "git",
+			Password: token,
+		}
+	}
+	repo, err := git.PlainClone(target, false, &cloneOptions)
 	if err != nil {
 		slog.Error("Could not clone git repository", slog.String("url", url), slog.String("branch", branch), slog.String("target", target))
 		return nil, err
@@ -118,7 +127,7 @@ func cloneRepository(url, branch, target string) (*git.Repository, error) {
 	return repo, err
 }
 
-func forcePullRepository(repo *git.Repository) error {
+func forcePullRepository(repo *git.Repository, token string) error {
 	w, err := repo.Worktree()
 	if err != nil {
 		slog.Error("Unexpected error when getting git repository worktree", slog.Any("error", err))
@@ -127,7 +136,14 @@ func forcePullRepository(repo *git.Repository) error {
 
 	// NOTE: instead of just pulling, we fetch and then hard reset to
 	// account for the case of force pushes to the remote branch
-	err = repo.Fetch(&git.FetchOptions{Depth: 2147483647})
+	fetchOptions := git.FetchOptions{Depth: 2147483647}
+	if token != "" {
+		fetchOptions.Auth = &http.BasicAuth{
+			Username: "git",
+			Password: token,
+		}
+	}
+	err = repo.Fetch(&fetchOptions)
 
 	if errors.Is(err, git.NoErrAlreadyUpToDate) {
 		slog.Info("Already up to date with remote repository, no changes pulled")
