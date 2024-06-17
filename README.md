@@ -19,7 +19,7 @@ Prometheus exporter that collects statistics from your second brain.
 - [X] Make InfluxDB parameters configurable
 - [X] Major refactor
 - [X] Backfill data using git
-- [ ] Support private repositories (Maybe with Github's PAT?)
+- [X] Support private repositories (Maybe with Github's PAT?)
 - [ ] Handle InfluxDB async write errors (https://github.com/influxdata/influxdb-client-go?tab=readme-ov-file#reading-async-errors)
 - [ ] Grafana dashboard
 - [ ] Docker compose example

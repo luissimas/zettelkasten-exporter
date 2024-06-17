@@ -31,7 +31,7 @@ func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 }
 
 func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
-	slog.Info("Collecting metrics")
+	slog.Debug("Collecting metrics", slog.Time("collection_time", collectionTime))
 	start := time.Now()
 	collected, err := c.collectMetrics(root)
 	if err != nil {
@@ -41,7 +41,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	for name, metric := range collected.Notes {
 		c.storage.WriteMetric(name, metric, collectionTime)
 	}
-	slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
+	slog.Debug("Collected metrics", slog.Duration("duration", time.Since(start)))
 
 	return nil
 }

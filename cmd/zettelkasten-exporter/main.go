@@ -49,6 +49,8 @@ func main() {
 
 	// Periodic collection loop
 	for {
+		slog.Info("Starting metrics collection")
+		start := time.Now()
 		err = zet.Ensure()
 		if err != nil {
 			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
@@ -61,5 +63,6 @@ func main() {
 			os.Exit(1)
 		}
 		time.Sleep(cfg.CollectionInterval)
+		slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
 	}
 }
