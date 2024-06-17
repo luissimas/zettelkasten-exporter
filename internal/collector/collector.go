@@ -9,55 +9,49 @@ import (
 	"time"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
+	"github.com/luissimas/zettelkasten-exporter/internal/storage"
 )
 
-type Metrics struct {
-	NoteCount int
-	LinkCount int
-	Notes     map[string]NoteMetrics
-}
-
 type CollectorConfig struct {
-	FileSystem     fs.FS
 	IgnorePatterns []string
 }
 
 type Collector struct {
-	config CollectorConfig
+	config  CollectorConfig
+	storage storage.Storage
 }
 
-func NewCollector(fileSystem fs.FS, ignorePatterns []string) Collector {
+func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	return Collector{
 		config: CollectorConfig{
-			FileSystem:     fileSystem,
 			IgnorePatterns: ignorePatterns,
 		},
+		storage: storage,
 	}
 }
 
-func (c *Collector) CollectMetrics() error {
+func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	slog.Info("Collecting metrics")
 	start := time.Now()
-	collected, err := c.collectMetrics()
+	collected, err := c.collectMetrics(root)
 	if err != nil {
 		return err
 	}
 
-	metrics.TotalNoteCount.Set(float64(collected.NoteCount))
 	for name, metric := range collected.Notes {
-		metrics.LinkCount.WithLabelValues(name).Set(float64(metric.LinkCount))
+		c.storage.WriteMetric(name, metric, collectionTime)
 	}
 	slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
 
 	return nil
 }
 
-func (c *Collector) collectMetrics() (Metrics, error) {
+func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 	noteCount := 0
 	linkCount := 0
-	notes := make(map[string]NoteMetrics)
+	notes := make(map[string]metrics.NoteMetrics)
 
-	err := fs.WalkDir(c.config.FileSystem, ".", func(path string, dir fs.DirEntry, err error) error {
+	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
 		// Skip ignored files or directories
 		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
 			if dir.IsDir() {
@@ -70,7 +64,7 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 			return nil
 		}
 
-		f, err := c.config.FileSystem.Open(path)
+		f, err := root.Open(path)
 		content, err := io.ReadAll(f)
 		if err != nil {
 			slog.Error("Error reading file", slog.Any("error", err))
@@ -88,8 +82,8 @@ func (c *Collector) collectMetrics() (Metrics, error) {
 
 	if err != nil {
 		slog.Error("Error getting files", slog.Any("error", err))
-		return Metrics{}, err
+		return metrics.Metrics{}, err
 	}
 
-	return Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
+	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
 }

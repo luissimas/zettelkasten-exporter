@@ -4,6 +4,8 @@ import (
 	"testing"
 	"testing/fstest"
 
+	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
+	"github.com/luissimas/zettelkasten-exporter/internal/storage"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -47,11 +49,11 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 		"ignoredir/test.md":     {Data: []byte("Test.md contents")},
 		"zettel/dir1/ignore.md": {Data: []byte("Ignore.md contents")},
 	}
-	c := NewCollector(fs, []string{"ignore.md", "ignoredir"})
-	expected := Metrics{
+	c := NewCollector([]string{"ignore.md", "ignoredir"}, storage.NewFakeStorage())
+	expected := metrics.Metrics{
 		NoteCount: 4,
 		LinkCount: 8,
-		Notes: map[string]NoteMetrics{
+		Notes: map[string]metrics.NoteMetrics{
 			"zettel/one.md": {
 				Links:     map[string]int{"./dir1/two.md": 2},
 				LinkCount: 2,
@@ -70,7 +72,7 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 			},
 		},
 	}
-	metrics, err := c.collectMetrics()
+	metrics, err := c.collectMetrics(fs)
 
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
