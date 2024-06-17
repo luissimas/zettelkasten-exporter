@@ -17,6 +17,7 @@ type Config struct {
 	ZettelkastenDirectory    string        `koanf:"zettelkasten_directory" validate:"requiredWithout:ZettelkastenGitURL"`
 	ZettelkastenGitURL       string        `koanf:"zettelkasten_git_url" validate:"requiredWithout:ZettelkastenDirectory" validate:"url/isURL"`
 	ZettelkastenGitBranch    string        `koanf:"zettelkasten_git_branch"`
+	ZettelkastenGitToken     string        `koanf:"zettelkasten_git_token"`
 	LogLevel                 slog.Level    `koanf:"log_level"`
 	IgnoreFiles              []string      `koanf:"ignore_files"`
 	CollectionInterval       time.Duration `koanf:"collection_interval"`
@@ -73,10 +74,12 @@ func (c Config) LogValue() slog.Value {
 	return slog.GroupValue(
 		slog.String("ZettelkastenDirectory", c.ZettelkastenDirectory),
 		slog.String("ZettelkastenGitURL", c.ZettelkastenGitURL),
+		slog.String("ZettelkastenGitToken", "[REDACTED]"),
 		slog.String("ZettelkastenGitBranch", c.ZettelkastenGitBranch),
 		slog.String("LogLevel", c.LogLevel.String()),
 		slog.Any("IgnoreFiles", c.IgnoreFiles),
 		slog.Duration("CollectionInterval", c.CollectionInterval),
+		slog.Bool("CollectHistoricalMetrics", c.CollectHistoricalMetrics),
 		slog.String("InfluxDBURL", c.InfluxDBURL),
 		slog.String("InfluxDBToken", "[REDACTED]"),
 		slog.String("InfluxDBOrg", c.InfluxDBOrg),

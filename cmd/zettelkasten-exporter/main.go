@@ -24,7 +24,7 @@ func main() {
 	collector := collector.NewCollector(cfg.IgnoreFiles, storage)
 	var zet zettelkasten.Zettelkasten
 	if cfg.ZettelkastenGitURL != "" {
-		zet = zettelkasten.NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch)
+		zet = zettelkasten.NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch, cfg.ZettelkastenGitToken)
 	} else {
 		zet = zettelkasten.NewLocalZettelkasten(cfg.ZettelkastenDirectory)
 	}
