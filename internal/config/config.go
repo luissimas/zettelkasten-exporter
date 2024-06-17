@@ -14,16 +14,17 @@ import (
 )
 
 type Config struct {
-	ZettelkastenDirectory string        `koanf:"zettelkasten_directory" validate:"requiredWithout:ZettelkastenGitURL"`
-	ZettelkastenGitURL    string        `koanf:"zettelkasten_git_url" validate:"requiredWithout:ZettelkastenDirectory" validate:"url/isURL"`
-	ZettelkastenGitBranch string        `koanf:"zettelkasten_git_branch"`
-	LogLevel              slog.Level    `koanf:"log_level"`
-	IgnoreFiles           []string      `koanf:"ignore_files"`
-	CollectionInterval    time.Duration `koanf:"collection_interval"`
-	InfluxDBURL           string        `koanf:"influxdb_url" validate:"required|fullUrl"`
-	InfluxDBToken         string        `koanf:"influxdb_token" validate:"required"`
-	InfluxDBOrg           string        `koanf:"influxdb_org" validate:"required"`
-	InfluxDBBucket        string        `koanf:"influxdb_bucket" validate:"required"`
+	ZettelkastenDirectory    string        `koanf:"zettelkasten_directory" validate:"requiredWithout:ZettelkastenGitURL"`
+	ZettelkastenGitURL       string        `koanf:"zettelkasten_git_url" validate:"requiredWithout:ZettelkastenDirectory" validate:"url/isURL"`
+	ZettelkastenGitBranch    string        `koanf:"zettelkasten_git_branch"`
+	LogLevel                 slog.Level    `koanf:"log_level"`
+	IgnoreFiles              []string      `koanf:"ignore_files"`
+	CollectionInterval       time.Duration `koanf:"collection_interval"`
+	CollectHistoricalMetrics bool          `koanf:"collect_historical_metrics"`
+	InfluxDBURL              string        `koanf:"influxdb_url" validate:"required|fullUrl"`
+	InfluxDBToken            string        `koanf:"influxdb_token" validate:"required"`
+	InfluxDBOrg              string        `koanf:"influxdb_org" validate:"required"`
+	InfluxDBBucket           string        `koanf:"influxdb_bucket" validate:"required"`
 }
 
 func LoadConfig() (Config, error) {
@@ -31,10 +32,11 @@ func LoadConfig() (Config, error) {
 
 	// Set default values
 	k.Load(structs.Provider(Config{
-		LogLevel:              slog.LevelInfo,
-		IgnoreFiles:           []string{".git", ".obsidian", ".trash", "README.md"},
-		ZettelkastenGitBranch: "main",
-		CollectionInterval:    time.Minute * 5,
+		LogLevel:                 slog.LevelInfo,
+		IgnoreFiles:              []string{".git", ".obsidian", ".trash", "README.md"},
+		ZettelkastenGitBranch:    "main",
+		CollectionInterval:       time.Minute * 5,
+		CollectHistoricalMetrics: true,
 	}, "koanf"), nil)
 
 	// Load env variables

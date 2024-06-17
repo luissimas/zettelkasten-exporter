@@ -34,8 +34,3 @@ func (i InfluxDBStorage) WriteMetric(noteName string, metric metrics.NoteMetrics
 	)
 	i.writeAPI.WritePoint(point)
 }
-
-func (i InfluxDBStorage) IsEmpty() bool {
-	// TODO: fetch data from InfluxDB
-	return false
-}

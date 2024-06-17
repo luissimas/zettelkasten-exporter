@@ -30,8 +30,8 @@ func main() {
 	}
 
 	// Collect historical data
-	if storage.IsEmpty() {
-		slog.Info("Storage is empty, will collect historical metrics")
+	if cfg.CollectHistoricalMetrics {
+		slog.Info("Collecting historical metrics")
 		start := time.Now()
 		err = zet.Ensure()
 		if err != nil {
@@ -44,9 +44,7 @@ func main() {
 			slog.Error("Error walking history", slog.Any("error", err))
 			os.Exit(1)
 		}
-		slog.Info("Collected historic metrics", slog.Duration("duration", time.Since(start)))
-	} else {
-		slog.Info("Storage is not empty, will skip collecting historical metrics")
+		slog.Info("Collected historical metrics", slog.Duration("duration", time.Since(start)))
 	}
 
 	// Periodic collection loop
