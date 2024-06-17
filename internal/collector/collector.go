@@ -65,9 +65,13 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		}
 
 		f, err := root.Open(path)
+		if err != nil {
+			slog.Error("Error opening file", slog.Any("error", err), slog.String("path", path))
+			return nil
+		}
 		content, err := io.ReadAll(f)
 		if err != nil {
-			slog.Error("Error reading file", slog.Any("error", err))
+			slog.Error("Error reading file", slog.Any("error", err), slog.String("path", path))
 			return nil
 		}
 		metrics := CollectNoteMetrics(content)
