@@ -29,6 +29,134 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "query": "import \"experimental/date/boundaries\"\n\nlastWeek = boundaries.week(week_offset: -1)\n\nfrom(bucket: v.defaultBucket)\n|> range(start: lastWeek.start)\n|> group()\n|> aggregateWindow(\n   every: 1w,\n   fn: (column, tables=<-) => tables |> distinct(column: column) |> count(),\n   column: \"name\",\n   createEmpty: false\n)\n|> increase()\n|> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "New notes this week",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "query": "import \"experimental/date/boundaries\"\n\nlastWeek = boundaries.week(week_offset: -1)\n\nfrom(bucket: v.defaultBucket)\n|> range(start: lastWeek.start)\n|> group()\n|> aggregateWindow(\n   every: 1w,\n   fn: (column, tables=<-) => tables |> group(columns: [\"name\", \"_start\", \"_stop\"]) |> last() |> group(columns: [\"_start\", \"_stop\"]) |> sum(),\n   column: \"name\",\n   createEmpty: false\n)\n|> increase()\n|> last()",
+          "refId": "A"
+        }
+      ],
+      "title": "New links this week",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -55,7 +183,7 @@
       "gridPos": {
         "h": 15,
         "w": 12,
-        "x": 0,
+        "x": 12,
         "y": 0
       },
       "id": 3,
@@ -300,7 +428,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "",
+  "refresh": "1m",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -326,14 +454,14 @@
     ]
   },
   "time": {
-    "from": "2020-10-16T16:54:40.570Z",
-    "to": "2024-06-11T02:28:17.168Z"
+    "from": "now-5y",
+    "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 7,
+  "version": 8,
   "weekStart": ""
 }
