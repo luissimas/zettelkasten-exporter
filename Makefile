@@ -31,3 +31,6 @@ run: build
 	INFLUXDB_ORG=default \
 	INFLUXDB_BUCKET=zettelkasten \
 	./bin/$(BINARY_NAME)
+
+docker:
+	docker build . -t zettelkasten-exporter:latest
