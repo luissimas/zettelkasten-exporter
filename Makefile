@@ -1,6 +1,6 @@
 BINARY_NAME=zettelkasten-exporter
 
-.PHONY: all clean format test build run
+.PHONY: all clean format vet lint test get build run
 
 all: format vet test build
 
@@ -14,10 +14,16 @@ format:
 vet:
 	go vet ./...
 
+lint:
+	golangci-lint run
+
 test:
 	go test ./...
 
-build:
+get:
+	go get ./...
+
+build: get
 	go build -o bin/$(BINARY_NAME) ./cmd/zettelkasten-exporter/main.go
 
 run: build
