@@ -15,7 +15,7 @@ import (
 
 type Config struct {
 	ZettelkastenDirectory    string        `koanf:"zettelkasten_directory" validate:"requiredWithout:ZettelkastenGitURL"`
-	ZettelkastenGitURL       string        `koanf:"zettelkasten_git_url" validate:"requiredWithout:ZettelkastenDirectory" validate:"url/isURL"`
+	ZettelkastenGitURL       string        `koanf:"zettelkasten_git_url" validate:"requiredWithout:ZettelkastenDirectory|url"`
 	ZettelkastenGitBranch    string        `koanf:"zettelkasten_git_branch"`
 	ZettelkastenGitToken     string        `koanf:"zettelkasten_git_token"`
 	LogLevel                 slog.Level    `koanf:"log_level"`
@@ -32,16 +32,19 @@ func LoadConfig() (Config, error) {
 	k := koanf.New(".")
 
 	// Set default values
-	k.Load(structs.Provider(Config{
+	err := k.Load(structs.Provider(Config{
 		LogLevel:                 slog.LevelInfo,
 		IgnoreFiles:              []string{".git", ".obsidian", ".trash", "README.md"},
 		ZettelkastenGitBranch:    "main",
 		CollectionInterval:       time.Minute * 5,
 		CollectHistoricalMetrics: true,
 	}, "koanf"), nil)
+	if err != nil {
+		return Config{}, fmt.Errorf("error loading default config values: %w", err)
+	}
 
 	// Load env variables
-	k.Load(env.ProviderWithValue("", ".", func(key, value string) (string, interface{}) {
+	err = k.Load(env.ProviderWithValue("", ".", func(key, value string) (string, interface{}) {
 		key = strings.ToLower(key)
 		if key == "collection_interval" {
 			parsedValue, err := parseCollectionInterval(value)
@@ -53,10 +56,16 @@ func LoadConfig() (Config, error) {
 		}
 		return key, value
 	}), nil)
+	if err != nil {
+		return Config{}, fmt.Errorf("error loading env variables: %w", err)
+	}
 
 	// Unmarshal into config struct
 	var cfg Config
-	k.Unmarshal("", &cfg)
+	err = k.Unmarshal("", &cfg)
+	if err != nil {
+		return Config{}, fmt.Errorf("error unmarshalling config: %w", err)
+	}
 
 	// Validate config
 	v := validate.Struct(cfg)

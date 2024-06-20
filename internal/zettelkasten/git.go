@@ -121,7 +121,7 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 		return nil
 	})
 	err = w.Reset(&git.ResetOptions{
-		Commit: *&originalHash,
+		Commit: originalHash,
 		Mode:   git.HardReset,
 	})
 	if err != nil {

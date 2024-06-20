@@ -31,7 +31,7 @@ func collectLinks(content []byte) map[string]int {
 	reader := text.NewReader(content)
 	root := md.Parser().Parse(reader)
 	links := make(map[string]int)
-	ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+	err := ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering && slices.Contains(linkKinds, n.Kind()) {
 			var target string
 			switch v := n.(type) {
@@ -55,6 +55,9 @@ func collectLinks(content []byte) map[string]int {
 		}
 		return ast.WalkContinue, nil
 	})
+	if err != nil {
+		slog.Error("Error walking note AST", slog.Any("error", err))
+	}
 	slog.Debug("Collected links", slog.Any("links", links))
 	return links
 }

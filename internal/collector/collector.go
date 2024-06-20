@@ -52,6 +52,11 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 	notes := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
+		if err != nil {
+			slog.Error("Error on path. Will not enter it", slog.Any("error", err), slog.String("path", path))
+			return nil
+		}
+
 		// Skip ignored files or directories
 		if slices.Contains(c.config.IgnorePatterns, filepath.Base(path)) {
 			if dir.IsDir() {
