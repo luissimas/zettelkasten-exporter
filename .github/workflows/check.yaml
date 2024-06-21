@@ -5,6 +5,7 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_call:
 
 permissions:
   contents: read
@@ -66,7 +67,7 @@ jobs:
         with:
           go-version-file: 'go.mod'
       - name: Build
-        run: go build -o /dev/null ./cmd/zettelkasten-exporter/main.go
+        run: go build -o /dev/null
   test:
     needs: build
     runs-on: ubuntu-latest

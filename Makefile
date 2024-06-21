@@ -1,8 +1,8 @@
 BINARY_NAME=zettelkasten-exporter
 
-.PHONY: all clean format vet lint test get build run
+.PHONY: all clean format vet lint test build run
 
-all: format vet test build
+all: format vet build test
 
 clean:
 	go clean
@@ -20,11 +20,8 @@ lint:
 test:
 	go test ./...
 
-get:
-	go get ./...
-
-build: get
-	go build -o bin/$(BINARY_NAME) ./cmd/zettelkasten-exporter/main.go
+build:
+	go build -o bin/$(BINARY_NAME)
 
 run: build
 	LOG_LEVEL=INFO \

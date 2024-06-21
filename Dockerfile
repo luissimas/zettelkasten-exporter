@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /zettelkasten-exporter ./cmd/zettelkasten-exporter/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o /zettelkasten-exporter
 
 FROM gcr.io/distroless/base-debian12 AS release-stage
 
