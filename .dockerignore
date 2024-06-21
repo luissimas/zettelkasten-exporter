@@ -1,0 +1,8 @@
+bin
+docs
+examples
+.gitignore
+.git/
+**/*.md
+Dockerfile
+Makefile

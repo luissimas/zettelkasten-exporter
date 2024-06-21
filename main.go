@@ -14,7 +14,8 @@ import (
 func main() {
 	// Setup
 	cfg, err := config.LoadConfig()
-	slog.SetLogLoggerLevel(cfg.LogLevel)
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: cfg.LogLevel}))
+	slog.SetDefault(logger)
 	if err != nil {
 		slog.Error("Error loading config", slog.Any("error", err))
 		os.Exit(1)
