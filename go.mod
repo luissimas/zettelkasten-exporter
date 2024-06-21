@@ -8,7 +8,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.13.0
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.9.0
-	github.com/yuin/goldmark v1.7.1
+	github.com/yuin/goldmark v1.7.2
 	go.abhg.dev/goldmark/wikilink v0.5.0
 )
 
