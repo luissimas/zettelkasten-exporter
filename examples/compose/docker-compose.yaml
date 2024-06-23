@@ -1,0 +1,55 @@
+# This is a sample compose file for deploying the zettelkasten-exporter
+# using an InfluxDB storage.
+version: '3.8'
+
+volumes:
+  influxdb-data: {}
+  influxdb-config: {}
+  grafana-data: {}
+
+services:
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - influxdb
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafan
+    ports:
+      - 3000:3000
+
+  influxdb:
+    image: influxdb:2
+    environment:
+      # We opt for an automated setup of InfluxDB for simplicity. It's
+      # strongly recommended to change those credentials or doing a
+      # manual InfluxDB setup
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: password
+      DOCKER_INFLUXDB_INIT_ORG: default
+      DOCKER_INFLUXDB_INIT_BUCKET: zettelkasten
+      DOCKER_INFLUXDB_INIT_RETENTION: 1w
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: demo-auth-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+    ports:
+      - 8086:8086
+
+  zettelkasten-exporter:
+    image: ghcr.io/luissimas/zettelkasten-exporter:latest
+    depends_on:
+      - influxdb
+    environment:
+      LOG_LEVEL: INFO
+      # Here we use a local directory for simplicity, but check out the
+      # README to see how to configure different sources such as git repositories.
+      ZETTELKASTEN_DIRECTORY: /sample
+      COLLECTION_INTERVAL: 10s
+      INFLUXDB_TOKEN: demo-auth-token
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_ORG: default
+      INFLUXDB_BUCKET: zettelkasten
+    volumes:
+      - ./sample:/sample

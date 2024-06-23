@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 3,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -213,7 +213,7 @@
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
-          "query": "from(bucket: v.defaultBucket)\n|> range(start: -1d)\n|> last()\n|> group()",
+          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> last()\n|> group()",
           "refId": "A"
         }
       ],
@@ -428,7 +428,7 @@
       "type": "timeseries"
     }
   ],
-  "refresh": "1m",
+  "refresh": "10s",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -437,7 +437,7 @@
         "current": {
           "selected": false,
           "text": "influxdb",
-          "value": "edogaymh9y96of"
+          "value": "bdp8tekqeihogd"
         },
         "hide": 0,
         "includeAll": false,
@@ -454,7 +454,7 @@
     ]
   },
   "time": {
-    "from": "now-5y",
+    "from": "now-1h",
     "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
@@ -462,6 +462,6 @@
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 8,
+  "version": 2,
   "weekStart": ""
 }
