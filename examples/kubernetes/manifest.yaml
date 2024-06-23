@@ -1,0 +1,66 @@
+# This is a sample manifest for deploying the zettelkasten-exporter using an InfluxDB
+# storage.
+# To deploy InfluxDB, see: https://github.com/influxdata/helm-charts/tree/master/charts/influxdb2
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zettelkasten-exporter-env
+  namespace: monitoring
+type: Opaque
+data:
+  # These are placeholder values. Replace them with the
+  # appropriate values for your setup.
+  github-token: YW55LXRva2Vu
+  influxdb-token: YW55LXRva2Vu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zettelkasten-exporter
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: zettelkasten-exporter
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: zettelkasten-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: zettelkasten-exporter
+    spec:
+      containers:
+        - name: zettelkasten-exporter
+          image: "ghcr.io/luissimas/zettelkasten-exporter:latest"
+          env:
+          - name: LOG_LEVEL
+            value: INFO
+          - name: COLLECTION_INTERVAL
+            value: 5m
+          - name: ZETTELKASTEN_GIT_URL
+            value: <YOUR_REPOSITORY_GIT_URL>
+          - name: ZETTELKASTEN_GIT_BRANCH
+            value: master
+          - name: ZETTELKASTEN_GIT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: zettelkasten-exporter-env
+                key: github-token
+          - name: INFLUXDB_URL
+            value: http://influxdb-influxdb2
+          - name: INFLUXDB_ORG
+            value: homelab
+          - name: INFLUXDB_BUCKET
+            value: zettelkasten
+          - name: INFLUXDB_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: zettelkasten-exporter-env
+                key: influxdb-token
