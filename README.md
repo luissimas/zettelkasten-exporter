@@ -1,3 +1,7 @@
+[![CI](https://github.com/luissimas/zettelkasten-exporter/actions/workflows/check.yaml/badge.svg)](https://github.com/luissimas/zettelkasten-exporter/actions/workflows/check.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/luissimas/zettelkasten-exporter)](https://goreportcard.com/report/github.com/luissimas/zettelkasten-exporter)
+[![Codecov](https://codecov.io/github/luissimas/zettelkasten-exporter/coverage.svg?branch=main)](https://codecov.io/gh/luissimas/zettelkasten-exporter)
+
 # Zettelkasten exporter
 
 > [!WARNING]
