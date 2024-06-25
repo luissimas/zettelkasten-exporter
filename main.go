@@ -63,7 +63,7 @@ func main() {
 			slog.Error("Error collecting metrics", slog.Any("error", err))
 			os.Exit(1)
 		}
-		slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)))
+		slog.Info("Collected metrics", slog.Duration("duration", time.Since(start)), slog.Time("next_run", time.Now().Add(cfg.CollectionInterval)))
 		time.Sleep(cfg.CollectionInterval)
 	}
 }
