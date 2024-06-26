@@ -9,12 +9,12 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /zettelkasten-exporter
 
-FROM gcr.io/distroless/base-debian12 AS release-stage
+FROM alpine:3 AS release-stage
 
 WORKDIR /
 
 COPY --from=build-stage /zettelkasten-exporter /zettelkasten-exporter
 
-USER nonroot:nonroot
+RUN apk add git
 
 ENTRYPOINT ["/zettelkasten-exporter"]
