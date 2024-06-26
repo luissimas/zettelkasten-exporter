@@ -1,12 +1,12 @@
 package metrics
 
 type Metrics struct {
-	NoteCount int
-	LinkCount int
+	NoteCount uint
+	LinkCount uint
 	Notes     map[string]NoteMetrics
 }
 
 type NoteMetrics struct {
-	Links     map[string]int
-	LinkCount int
+	Links     map[string]uint
+	LinkCount uint
 }

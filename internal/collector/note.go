@@ -18,19 +18,19 @@ var md = goldmark.New(
 )
 
 func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
+	var linkCount uint
 	links := collectLinks(content)
-	linkCount := 0
 	for _, v := range links {
 		linkCount += v
 	}
 	return metrics.NoteMetrics{Links: links, LinkCount: linkCount}
 }
 
-func collectLinks(content []byte) map[string]int {
+func collectLinks(content []byte) map[string]uint {
 	linkKinds := []ast.NodeKind{ast.KindLink, wikilink.Kind}
 	reader := text.NewReader(content)
 	root := md.Parser().Parse(reader)
-	links := make(map[string]int)
+	links := make(map[string]uint)
 	err := ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering && slices.Contains(linkKinds, n.Kind()) {
 			var target string

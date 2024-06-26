@@ -55,19 +55,19 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 		LinkCount: 8,
 		Notes: map[string]metrics.NoteMetrics{
 			"zettel/one.md": {
-				Links:     map[string]int{"./dir1/two.md": 2},
+				Links:     map[string]uint{"./dir1/two.md": 2},
 				LinkCount: 2,
 			},
 			"zettel/dir1/two.md": {
-				Links:     map[string]int{"one": 1},
+				Links:     map[string]uint{"one": 1},
 				LinkCount: 1,
 			},
 			"zettel/dir1/dir2/three.md": {
-				Links:     map[string]int{"one": 1, "two": 1},
+				Links:     map[string]uint{"one": 1, "two": 1},
 				LinkCount: 2,
 			},
 			"zettel/four.md": {
-				Links:     map[string]int{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
+				Links:     map[string]uint{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
 				LinkCount: 3,
 			},
 		},

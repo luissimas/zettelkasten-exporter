@@ -47,8 +47,8 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 }
 
 func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
-	noteCount := 0
-	linkCount := 0
+	var noteCount uint
+	var linkCount uint
 	notes := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
