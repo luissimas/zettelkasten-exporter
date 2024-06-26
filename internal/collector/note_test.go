@@ -55,9 +55,17 @@ func TestCollectNoteMetrics(t *testing.T) {
 		},
 		{
 			name:    "ignore embeddedlinks",
-			content: "![[target.png]]\n!()[another.jpeg]\n[[link]]",
+			content: "![[target.png]]\n![](another.jpeg)\n[[link]]",
 			expected: metrics.NoteMetrics{
 				Links:     map[string]uint{"link": 1},
+				LinkCount: 1,
+			},
+		},
+		{
+			name:    "ignore http links",
+			content: "[[one]][this is an http link](https://go.dev/)[[not/an/http/link]]",
+			expected: metrics.NoteMetrics{
+				Links:     map[string]uint{"one": 1, "not/an/http/link": 1},
 				LinkCount: 1,
 			},
 		},

@@ -2,6 +2,7 @@ package collector
 
 import (
 	"log/slog"
+	"net/url"
 	"slices"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
@@ -46,7 +47,10 @@ func collectLinks(content []byte) map[string]uint {
 				return ast.WalkContinue, nil
 			}
 
-			// TODO: check if target is not a http link
+			if isUrl(target) {
+				return ast.WalkContinue, nil
+			}
+
 			v, ok := links[target]
 			if !ok {
 				links[target] = 0
@@ -60,4 +64,9 @@ func collectLinks(content []byte) map[string]uint {
 	}
 	slog.Debug("Collected links", slog.Any("links", links))
 	return links
+}
+
+func isUrl(s string) bool {
+	u, err := url.Parse(s)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
