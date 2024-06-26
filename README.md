@@ -4,17 +4,17 @@
 
 # Zettelkasten exporter
 
-> [!WARNING]
-> This is still a work in progress, expect breaking changes
-
 An agent that collects metrics from an zettelkasten and stores them into an InfluxDB bucket.
 
 ![](./docs/assets/dashboard.png)
 
+> [!NOTE]
+> This is still a work in progress. If you find any bugs or have any questions, fell free to [open an issue](https://github.com/luissimas/zettelkasten-exporter/issues/new/choose).
+
 ## Features
 
 - Collect metrics from a local directory or a git repository
-- Backfill historical metrics
+- Backfill historical metrics using git
 - Parses both markdown and wiki links
 - Authenticate in private git repositories using personal access tokens
 - Grafana dashboards included
@@ -23,8 +23,8 @@ An agent that collects metrics from an zettelkasten and stores them into an Infl
 
 The exporter is distributed as both a binary and a Docker image. The currently documented ways of deploy are via docker compose and Kubernetes. For details about the setup, check out the examples:
 
-- [Docker compose example](./examples/compose).
-- [Kubernetes example](./examples/kubernetes).
+- [Docker compose example](./examples/compose)
+- [Kubernetes example](./examples/kubernetes)
 
 Note that for a complete solution, it will be necessary to also configure InfluxDB and Grafana. For more information about setting them up, refer to their documentation. Here are some links that might be useful:
 
@@ -49,6 +49,14 @@ All configuration is supplied via environment variables. You should supply at le
 | COLLECT_HISTORICAL_METRICS | Wether to collect historical metrics at startup                      | true                           | No       |
 | IGNORE_FILES               | Comma separated list of files that will be ignored in the collection | .git,obsidian,.trash,README.md | No       |
 | LOG_LEVEL                  | The minimum log level                                                | INFO                           | No       |
+
+## Roadmap
+
+These are some features that I'd like to include in the future.
+
+- Collect additional metrics
+- Support Prometheus remote write as a storage
+- Support VictoriaMetrics as a storage
 
 ## References
 
