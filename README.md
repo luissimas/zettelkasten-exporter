@@ -9,7 +9,7 @@ An agent that collects metrics from an zettelkasten and stores them into an Infl
 ![](./docs/assets/dashboard.png)
 
 > [!NOTE]
-> This is still a work in progress. If you find any bugs or have any questions, fell free to [open an issue](https://github.com/luissimas/zettelkasten-exporter/issues/new/choose).
+> This is still a work in progress. If you find any bugs or have any questions, feel free to [open an issue](https://github.com/luissimas/zettelkasten-exporter/issues/new/choose).
 
 ## Features
 
