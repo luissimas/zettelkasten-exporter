@@ -16,11 +16,13 @@ type CollectorConfig struct {
 	IgnorePatterns []string
 }
 
+// Collector represents a metrics collector.
 type Collector struct {
 	config  CollectorConfig
 	storage storage.Storage
 }
 
+// NewCollector creates a new collector
 func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	return Collector{
 		config: CollectorConfig{
@@ -30,6 +32,7 @@ func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	}
 }
 
+// CollectMetrics collects all metrics from a Zettelkasten rooted in `root` and writes them to the storage with a timestamp of `collectionTime`.
 func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	slog.Debug("Collecting metrics", slog.Time("collection_time", collectionTime))
 	start := time.Now()
@@ -38,6 +41,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 		return err
 	}
 
+	// Write metrics to storage
 	for name, metric := range collected.Notes {
 		c.storage.WriteMetric(name, metric, collectionTime)
 	}
@@ -46,6 +50,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	return nil
 }
 
+// collectMetrics collects all metrics from a Zettelkasten rooted in `root`.
 func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 	var noteCount uint
 	var linkCount uint

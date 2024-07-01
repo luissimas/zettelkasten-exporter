@@ -30,8 +30,7 @@ func (g GitZettelkasten) GetRoot() fs.FS {
 	return os.DirFS(g.rootPath)
 }
 
-// Ensure makes sure that the git repository is valid and updated with the
-// latest changes from the remote.
+// Ensure makes sure that the git repository is valid and updated with the latest changes from the remote.
 func (g GitZettelkasten) Ensure() error {
 	f, err := os.Stat(g.rootPath)
 	if errors.Is(err, fs.ErrNotExist) {

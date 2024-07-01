@@ -20,6 +20,7 @@ var md = goldmark.New(
 	),
 )
 
+// CollectNoteMetrics collects all note metrics from a note with the given `content`.
 func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
 	noteMetrics := metrics.NoteMetrics{
 		Links:         make(map[string]uint),
