@@ -26,10 +26,12 @@ The exporter is distributed as both a binary and a Docker image. The currently d
 - [Docker compose example](./examples/compose)
 - [Kubernetes example](./examples/kubernetes)
 
-Note that for a complete solution, it will be necessary to also configure InfluxDB and Grafana. For more information about setting them up, refer to their documentation. Here are some links that might be useful:
+Note that for a complete solution, it will be necessary to setup InfluxDB and Grafana. For more information about setting them up, refer to their documentation. Here are some links that might be useful:
 
 - https://grafana.com/docs/grafana/latest/getting-started/get-started-grafana-influxdb/
 - https://docs.influxdata.com/influxdb/v2/get-started/setup/
+
+The provided dashboard uses `Flux` as the language to query InfluxDB, so make sure to set the "Query language" option to "Flux" when creating the InfluxDB data source in Grafana.
 
 ## Configuration
 
