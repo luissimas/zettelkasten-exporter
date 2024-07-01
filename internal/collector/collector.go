@@ -49,6 +49,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 	var noteCount uint
 	var linkCount uint
+	var wordCount uint
 	notes := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
@@ -83,6 +84,7 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		metrics := CollectNoteMetrics(content)
 		notes[path] = metrics
 		linkCount += metrics.LinkCount
+		wordCount += metrics.WordCount
 		noteCount += 1
 
 		slog.Debug("collected metrics from file", slog.String("path", path), slog.Any("d", dir), slog.Any("err", err))
@@ -95,5 +97,5 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		return metrics.Metrics{}, err
 	}
 
-	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
+	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, WordCount: wordCount, Notes: notes}, nil
 }
