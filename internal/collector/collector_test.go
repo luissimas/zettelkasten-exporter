@@ -53,22 +53,31 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 	expected := metrics.Metrics{
 		NoteCount: 4,
 		LinkCount: 8,
+		WordCount: 43,
 		Notes: map[string]metrics.NoteMetrics{
 			"zettel/one.md": {
-				Links:     map[string]uint{"./dir1/two.md": 2},
-				LinkCount: 2,
+				Links:         map[string]uint{"./dir1/two.md": 2},
+				LinkCount:     2,
+				WordCount:     13,
+				BacklinkCount: 0,
 			},
 			"zettel/dir1/two.md": {
-				Links:     map[string]uint{"one": 1},
-				LinkCount: 1,
+				Links:         map[string]uint{"one": 1},
+				LinkCount:     1,
+				WordCount:     5,
+				BacklinkCount: 0,
 			},
 			"zettel/dir1/dir2/three.md": {
-				Links:     map[string]uint{"one": 1, "two": 1},
-				LinkCount: 2,
+				Links:         map[string]uint{"one": 1, "two": 1},
+				LinkCount:     2,
+				WordCount:     10,
+				BacklinkCount: 0,
 			},
 			"zettel/four.md": {
-				Links:     map[string]uint{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
-				LinkCount: 3,
+				Links:         map[string]uint{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
+				LinkCount:     3,
+				WordCount:     15,
+				BacklinkCount: 0,
 			},
 		},
 	}

@@ -29,7 +29,11 @@ func (i InfluxDBStorage) WriteMetric(noteName string, metric metrics.NoteMetrics
 	point := influxdb2.NewPoint(
 		measurementName,
 		map[string]string{"name": noteName},
-		map[string]interface{}{"link_count": metric.LinkCount},
+		map[string]interface{}{
+			"link_count":     metric.LinkCount,
+			"word_count":     metric.WordCount,
+			"backlink_count": metric.BacklinkCount,
+		},
 		timestamp,
 	)
 	i.writeAPI.WritePoint(point)

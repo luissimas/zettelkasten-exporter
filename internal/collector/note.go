@@ -3,7 +3,9 @@ package collector
 import (
 	"log/slog"
 	"net/url"
-	"slices"
+	"path/filepath"
+	"strings"
+	"unicode"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
 	"github.com/yuin/goldmark"
@@ -19,54 +21,70 @@ var md = goldmark.New(
 )
 
 func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
-	var linkCount uint
-	links := collectLinks(content)
-	for _, v := range links {
-		linkCount += v
+	noteMetrics := metrics.NoteMetrics{
+		Links:         make(map[string]uint),
+		LinkCount:     0,
+		WordCount:     0,
+		BacklinkCount: 0,
 	}
-	return metrics.NoteMetrics{Links: links, LinkCount: linkCount}
-}
-
-func collectLinks(content []byte) map[string]uint {
-	linkKinds := []ast.NodeKind{ast.KindLink, wikilink.Kind}
 	reader := text.NewReader(content)
 	root := md.Parser().Parse(reader)
-	links := make(map[string]uint)
 	err := ast.Walk(root, func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		if entering && slices.Contains(linkKinds, n.Kind()) {
-			var target string
-			switch v := n.(type) {
-			case *ast.Link:
-				target = string(v.Destination)
-			case *wikilink.Node:
-				if v.Embed {
-					return ast.WalkContinue, nil
-				}
-				target = string(v.Target)
-			default:
-				return ast.WalkContinue, nil
-			}
-
-			if isUrl(target) {
-				return ast.WalkContinue, nil
-			}
-
-			v, ok := links[target]
-			if !ok {
-				links[target] = 0
-			}
-			links[target] = v + 1
+		if !entering {
+			return ast.WalkContinue, nil
 		}
+
+		linkTarget := ""
+
+		switch v := n.(type) {
+		case *ast.Link:
+			linkTarget = string(v.Destination)
+		case *wikilink.Node:
+			linkTarget = string(v.Target)
+		case *ast.Paragraph, *ast.ListItem:
+			text := string(n.Text(content))
+			fields := strings.FieldsFunc(string(text), func(r rune) bool { return unicode.IsSpace(r) || r == '\n' })
+			noteMetrics.WordCount += uint(len(fields))
+		default:
+			return ast.WalkContinue, nil
+		}
+
+		if !isNoteTarget(linkTarget) {
+			return ast.WalkContinue, nil
+		}
+
+		v, ok := noteMetrics.Links[linkTarget]
+		if !ok {
+			noteMetrics.Links[linkTarget] = 0
+		}
+		noteMetrics.Links[linkTarget] = v + 1
 		return ast.WalkContinue, nil
 	})
 	if err != nil {
 		slog.Error("Error walking note AST", slog.Any("error", err))
 	}
-	slog.Debug("Collected links", slog.Any("links", links))
-	return links
+	for _, linkCount := range noteMetrics.Links {
+		noteMetrics.LinkCount += linkCount
+	}
+	return noteMetrics
 }
 
-func isUrl(s string) bool {
-	u, err := url.Parse(s)
-	return err == nil && u.Scheme != "" && u.Host != ""
+// isNoteTarget determines whether a link target points to a markdown note.
+func isNoteTarget(target string) bool {
+	// Empty strings are not valid targets
+	if target == "" {
+		return false
+	}
+
+	// Check if target is a URL
+	u, err := url.Parse(target)
+	isUrl := err == nil && u.Scheme != "" && u.Host != ""
+	if isUrl {
+		return false
+	}
+
+	// Check if target is either a markdown file or has no extension
+	extension := filepath.Ext(target)
+	isNoteTarget := extension == "" || extension == ".md"
+	return isNoteTarget
 }
