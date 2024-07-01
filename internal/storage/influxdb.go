@@ -25,11 +25,17 @@ func NewInfluxDBStorage(url, org, bucket, token string) InfluxDBStorage {
 	return InfluxDBStorage{writeAPI: writeAPI, queryAPI: queryAPI}
 }
 
+// WriteMetric writes `metric` for `noteName` to the storage with `timestamp`.
 func (i InfluxDBStorage) WriteMetric(noteName string, metric metrics.NoteMetrics, timestamp time.Time) {
 	point := influxdb2.NewPoint(
 		measurementName,
 		map[string]string{"name": noteName},
-		map[string]interface{}{"link_count": metric.LinkCount},
+		map[string]interface{}{
+			"link_count":     metric.LinkCount,
+			"word_count":     metric.WordCount,
+			"time_to_read":   metric.TimeToRead,
+			"backlink_count": metric.BacklinkCount,
+		},
 		timestamp,
 	)
 	i.writeAPI.WritePoint(point)

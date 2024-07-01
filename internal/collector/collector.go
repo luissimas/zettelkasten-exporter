@@ -16,11 +16,13 @@ type CollectorConfig struct {
 	IgnorePatterns []string
 }
 
+// Collector represents a metrics collector.
 type Collector struct {
 	config  CollectorConfig
 	storage storage.Storage
 }
 
+// NewCollector creates a new collector
 func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	return Collector{
 		config: CollectorConfig{
@@ -30,6 +32,7 @@ func NewCollector(ignorePatterns []string, storage storage.Storage) Collector {
 	}
 }
 
+// CollectMetrics collects all metrics from a Zettelkasten rooted in `root` and writes them to the storage with a timestamp of `collectionTime`.
 func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	slog.Debug("Collecting metrics", slog.Time("collection_time", collectionTime))
 	start := time.Now()
@@ -38,6 +41,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 		return err
 	}
 
+	// Write metrics to storage
 	for name, metric := range collected.Notes {
 		c.storage.WriteMetric(name, metric, collectionTime)
 	}
@@ -46,9 +50,11 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 	return nil
 }
 
+// collectMetrics collects all metrics from a Zettelkasten rooted in `root`.
 func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
-	noteCount := 0
-	linkCount := 0
+	var noteCount uint
+	var linkCount uint
+	var wordCount uint
 	notes := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
@@ -83,6 +89,7 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		metrics := CollectNoteMetrics(content)
 		notes[path] = metrics
 		linkCount += metrics.LinkCount
+		wordCount += metrics.WordCount
 		noteCount += 1
 
 		slog.Debug("collected metrics from file", slog.String("path", path), slog.Any("d", dir), slog.Any("err", err))
@@ -95,5 +102,5 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		return metrics.Metrics{}, err
 	}
 
-	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, Notes: notes}, nil
+	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, WordCount: wordCount, Notes: notes}, nil
 }

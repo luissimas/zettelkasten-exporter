@@ -1,12 +1,18 @@
 package metrics
 
+import "time"
+
 type Metrics struct {
-	NoteCount int
-	LinkCount int
+	NoteCount uint
+	LinkCount uint
+	WordCount uint
 	Notes     map[string]NoteMetrics
 }
 
 type NoteMetrics struct {
-	Links     map[string]int
-	LinkCount int
+	Links         map[string]uint
+	LinkCount     uint
+	WordCount     uint
+	TimeToRead    time.Duration
+	BacklinkCount uint
 }
