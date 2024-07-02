@@ -54,11 +54,12 @@ func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
 			return ast.WalkContinue, nil
 		}
 
-		v, ok := noteMetrics.Links[linkTarget]
+		targetName := nameFromFilename(linkTarget)
+		v, ok := noteMetrics.Links[targetName]
 		if !ok {
-			noteMetrics.Links[linkTarget] = 0
+			noteMetrics.Links[targetName] = 0
 		}
-		noteMetrics.Links[linkTarget] = v + 1
+		noteMetrics.Links[targetName] = v + 1
 		return ast.WalkContinue, nil
 	})
 	if err != nil {
@@ -88,4 +89,9 @@ func isNoteTarget(target string) bool {
 	extension := filepath.Ext(target)
 	isNoteTarget := extension == "" || extension == ".md"
 	return isNoteTarget
+}
+
+// nameFromFilename extracts the base note name from a full path.
+func nameFromFilename(filename string) string {
+	return strings.TrimSuffix(filepath.Base(filename), filepath.Ext(filename))
 }

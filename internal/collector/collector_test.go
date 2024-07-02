@@ -18,7 +18,7 @@ created-at: "2024-05-29"
 
 Testing a note with no links. But there's a [markdown link](./dir1/two.md)
 
-[[./dir1/two.md]]
+[[two]]
 
 ![[./image.png]]
 		`)},
@@ -42,7 +42,7 @@ Links to [[one]] but also to [[two|two with an alias]]
 ---
 created-at: "2024-05-29"
 ---
-Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir1/two.md|full link with .md]]
+Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/two.md|full link with .md]]
 		`)},
 		"ignoredir/foo":         {Data: []byte("Foo contents")},
 		"ignoredir/bar":         {Data: []byte("Bar contents")},
@@ -55,26 +55,26 @@ Link to [one](./one.md) and also a full link [[./dir1/dir2/three]] and a [[./dir
 		LinkCount: 8,
 		WordCount: 43,
 		Notes: map[string]metrics.NoteMetrics{
-			"zettel/one.md": {
-				Links:         map[string]uint{"./dir1/two.md": 2},
+			"one": {
+				Links:         map[string]uint{"two": 2},
 				LinkCount:     2,
 				WordCount:     13,
-				BacklinkCount: 0,
+				BacklinkCount: 3,
 			},
-			"zettel/dir1/two.md": {
+			"two": {
 				Links:         map[string]uint{"one": 1},
 				LinkCount:     1,
 				WordCount:     5,
-				BacklinkCount: 0,
+				BacklinkCount: 4,
 			},
-			"zettel/dir1/dir2/three.md": {
+			"three": {
 				Links:         map[string]uint{"one": 1, "two": 1},
 				LinkCount:     2,
 				WordCount:     10,
-				BacklinkCount: 0,
+				BacklinkCount: 1,
 			},
-			"zettel/four.md": {
-				Links:         map[string]uint{"./one.md": 1, "./dir1/dir2/three": 1, "./dir1/two.md": 1},
+			"four": {
+				Links:         map[string]uint{"one": 1, "three": 1, "two": 1},
 				LinkCount:     3,
 				WordCount:     15,
 				BacklinkCount: 0,

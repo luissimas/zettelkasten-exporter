@@ -52,10 +52,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 
 // collectMetrics collects all metrics from a Zettelkasten rooted in `root`.
 func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
-	var noteCount uint
-	var linkCount uint
-	var wordCount uint
-	notes := make(map[string]metrics.NoteMetrics)
+	noteMetrics := make(map[string]metrics.NoteMetrics)
 
 	err := fs.WalkDir(root, ".", func(path string, dir fs.DirEntry, err error) error {
 		if err != nil {
@@ -86,11 +83,7 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 			slog.Error("Error reading file", slog.Any("error", err), slog.String("path", path))
 			return nil
 		}
-		metrics := CollectNoteMetrics(content)
-		notes[path] = metrics
-		linkCount += metrics.LinkCount
-		wordCount += metrics.WordCount
-		noteCount += 1
+		noteMetrics[nameFromFilename(path)] = CollectNoteMetrics(content)
 
 		slog.Debug("collected metrics from file", slog.String("path", path), slog.Any("d", dir), slog.Any("err", err))
 
@@ -102,5 +95,30 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 		return metrics.Metrics{}, err
 	}
 
-	return metrics.Metrics{NoteCount: noteCount, LinkCount: linkCount, WordCount: wordCount, Notes: notes}, nil
+	zettelkastenMetrics := aggregateMetrics(noteMetrics)
+	return zettelkastenMetrics, nil
+}
+
+// aggregateMetrics aggregates all individual note metrics into metrics in the context of a full Zettelkasten.
+func aggregateMetrics(noteMetrics map[string]metrics.NoteMetrics) metrics.Metrics {
+	zettelkastenMetrics := metrics.Metrics{
+		NoteCount: 0,
+		LinkCount: 0,
+		WordCount: 0,
+		Notes:     make(map[string]metrics.NoteMetrics),
+	}
+
+	for name, metric := range noteMetrics {
+		// Aggregate totals
+		zettelkastenMetrics.NoteCount += 1
+		zettelkastenMetrics.LinkCount += metric.LinkCount
+		zettelkastenMetrics.WordCount += metric.WordCount
+		// Collect backlinks
+		for _, n := range noteMetrics {
+			metric.BacklinkCount += n.Links[name]
+		}
+		zettelkastenMetrics.Notes[name] = metric
+	}
+
+	return zettelkastenMetrics
 }
