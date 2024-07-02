@@ -17,19 +17,34 @@
   },
   "editable": true,
   "fiscalYearStartMonth": 0,
-  "graphTooltip": 0,
+  "graphTooltip": 2,
   "id": 1,
   "links": [],
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 11,
+      "panels": [],
+      "title": "Overview",
+      "type": "row"
+    },
     {
       "datasource": {
         "type": "influxdb",
         "uid": "${datasource}"
       },
+      "description": "Number of notes created in the visualization period",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "blue",
+            "mode": "fixed"
           },
           "mappings": [],
           "thresholds": {
@@ -38,10 +53,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -50,9 +61,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
+        "w": 6,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 4,
       "options": {
@@ -71,18 +82,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
-          "query": "import \"experimental/date/boundaries\"\n\nlastWeek = boundaries.week(week_offset: -1)\n\nfrom(bucket: v.defaultBucket)\n|> range(start: lastWeek.start)\n|> group()\n|> aggregateWindow(\n   every: 1w,\n   fn: (column, tables=<-) => tables |> distinct(column: column) |> count(),\n   column: \"name\",\n   createEmpty: false\n)\n|> increase()\n|> last()",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"note_count\")\n  |> spread()",
           "refId": "A"
         }
       ],
-      "title": "New notes this week",
+      "title": "New notes",
       "type": "stat"
     },
     {
@@ -90,10 +101,12 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
+      "description": "Number of links created in the visualization period",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "fixedColor": "purple",
+            "mode": "fixed"
           },
           "mappings": [],
           "thresholds": {
@@ -102,10 +115,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           }
@@ -114,9 +123,9 @@
       },
       "gridPos": {
         "h": 5,
-        "w": 3,
-        "x": 3,
-        "y": 0
+        "w": 6,
+        "x": 6,
+        "y": 1
       },
       "id": 5,
       "options": {
@@ -135,18 +144,18 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
-          "query": "import \"experimental/date/boundaries\"\n\nlastWeek = boundaries.week(week_offset: -1)\n\nfrom(bucket: v.defaultBucket)\n|> range(start: lastWeek.start)\n|> group()\n|> aggregateWindow(\n   every: 1w,\n   fn: (column, tables=<-) => tables |> group(columns: [\"name\", \"_start\", \"_stop\"]) |> last() |> group(columns: [\"_start\", \"_stop\"]) |> sum(),\n   column: \"name\",\n   createEmpty: false\n)\n|> increase()\n|> last()",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"link_count\")\n  |> spread()",
           "refId": "A"
         }
       ],
-      "title": "New links this week",
+      "title": "New links",
       "type": "stat"
     },
     {
@@ -154,18 +163,12 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
+      "description": "Number of words written in the visualization period",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "align": "auto",
-            "cellOptions": {
-              "type": "auto"
-            },
-            "filterable": true,
-            "inspect": false
+            "fixedColor": "orange",
+            "mode": "fixed"
           },
           "mappings": [],
           "thresholds": {
@@ -181,10 +184,156 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 15,
-        "w": 12,
+        "h": 5,
+        "w": 6,
         "x": 12,
-        "y": 0
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"word_count\")\n  |> spread()",
+          "refId": "A"
+        }
+      ],
+      "title": "New words",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Time to read all notes created in the visualization period",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "11.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"word_count\")\n  |> map(fn: (r) => ({r with _value: r._value / uint(v: 212)}))\n  |> spread()",
+          "refId": "A"
+        }
+      ],
+      "title": "Reading time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Metrics from each markdown note in the Zettelkasten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true,
+            "inspect": false,
+            "minWidth": 50
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Reading time"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "m"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 6
       },
       "id": 3,
       "options": {
@@ -202,18 +351,18 @@
         "sortBy": [
           {
             "desc": true,
-            "displayName": "Links"
+            "displayName": "Backlinks"
           }
         ]
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
-          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> last()\n|> group()",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
           "refId": "A"
         }
       ],
@@ -223,25 +372,26 @@
           "id": "organize",
           "options": {
             "excludeByName": {
-              "_field": true,
               "_measurement": true,
               "_start": true,
-              "_stop": true,
-              "_time": true
+              "_stop": true
             },
             "includeByName": {},
             "indexByName": {
-              "_field": 5,
-              "_measurement": 6,
-              "_start": 2,
-              "_stop": 3,
-              "_time": 4,
-              "_value": 1,
-              "name": 0
+              "_measurement": 0,
+              "backlink_count": 3,
+              "link_count": 2,
+              "name": 1,
+              "time_to_read": 5,
+              "word_count": 4
             },
             "renameByName": {
-              "_value": "Links",
-              "name": "Note"
+              "_start": "",
+              "backlink_count": "Backlinks",
+              "link_count": "Links",
+              "name": "Name",
+              "time_to_read": "Reading time",
+              "word_count": "Words"
             }
           }
         }
@@ -249,10 +399,207 @@
       "type": "table"
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Historical data",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "influxdb",
         "uid": "${datasource}"
       },
+      "description": "Historical evolution of the number of notes in the Zettelkasten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"note_count\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Notes",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Historical evolution of words in the Zettelkasten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Words",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Historical evolution of the number of links in the Zettelkasten",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -306,11 +653,103 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 15
+        "y": 27
       },
-      "id": 1,
+      "id": 2,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"link_count\")",
+          "refId": "A"
+        }
+      ],
+      "title": "Links",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Historical evolution of the total reading time for the Zettelkasten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "m"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 9,
       "options": {
         "legend": {
           "calcs": [],
@@ -330,11 +769,11 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
-          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> distinct(column: column) |> count(),\n   column: \"name\",\n   createEmpty: false\n)",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")\n  |> map(fn: (r) => ({r with _value: r._value / uint(v: 212)}))",
           "refId": "A"
         }
       ],
-      "title": "Note count",
+      "title": "Reading time",
       "type": "timeseries"
     },
     {
@@ -342,10 +781,11 @@
         "type": "influxdb",
         "uid": "${datasource}"
       },
+      "description": "Historical evolution of the average number of links per note in the Zettelkasten",
       "fieldConfig": {
         "defaults": {
           "color": {
-            "fixedColor": "blue",
+            "fixedColor": "green",
             "mode": "fixed"
           },
           "custom": {
@@ -394,12 +834,12 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 9,
-        "w": 24,
+        "h": 8,
+        "w": 12,
         "x": 0,
-        "y": 23
+        "y": 35
       },
-      "id": 2,
+      "id": 13,
       "options": {
         "legend": {
           "calcs": [],
@@ -413,22 +853,113 @@
           "sort": "none"
         }
       },
-      "pluginVersion": "11.0.0",
+      "pluginVersion": "11.0.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "${datasource}"
           },
-          "query": "from(bucket: v.defaultBucket)\n|> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n|> group()\n|> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> group(columns: [\"name\", \"_start\", \"_stop\"]) |> last() |> group(columns: [\"_start\", \"_stop\"]) |> sum(),\n   column: \"name\",\n   createEmpty: false\n)",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"link_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
           "refId": "A"
         }
       ],
-      "title": "Link count",
+      "title": "Average link count",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "influxdb",
+        "uid": "${datasource}"
+      },
+      "description": "Historical evolution of the average number of words per note in the Zettelkasten",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "maxHeight": 600,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.0.1",
+      "targets": [
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "${datasource}"
+          },
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"word_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
+          "refId": "A"
+        }
+      ],
+      "title": "Average word count",
       "type": "timeseries"
     }
   ],
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 39,
   "tags": [],
   "templating": {
@@ -437,7 +968,7 @@
         "current": {
           "selected": false,
           "text": "influxdb",
-          "value": "bdp8tekqeihogd"
+          "value": "cdqmo6y19tc74d"
         },
         "hide": 0,
         "includeAll": false,
@@ -454,7 +985,7 @@
     ]
   },
   "time": {
-    "from": "now-1h",
+    "from": "now-30d",
     "to": "now"
   },
   "timeRangeUpdatedDuringEditOrView": false,
@@ -462,6 +993,6 @@
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 2,
+  "version": 11,
   "weekStart": ""
 }
