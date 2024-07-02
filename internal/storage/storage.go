@@ -8,6 +8,6 @@ import (
 
 // Storage represents a storage for metrics.
 type Storage interface {
-	// WriteMetric writes the note metric to the storage.
-	WriteMetric(noteName string, metric metrics.NoteMetrics, timestamp time.Time)
+	// WriteMetric writes the `zettelkastenMetrics` to the storage.
+	WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time)
 }

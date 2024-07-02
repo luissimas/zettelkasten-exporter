@@ -41,10 +41,7 @@ func (c *Collector) CollectMetrics(root fs.FS, collectionTime time.Time) error {
 		return err
 	}
 
-	// Write metrics to storage
-	for name, metric := range collected.Notes {
-		c.storage.WriteMetric(name, metric, collectionTime)
-	}
+	c.storage.WriteMetrics(collected, collectionTime)
 	slog.Debug("Collected metrics", slog.Duration("duration", time.Since(start)))
 
 	return nil
