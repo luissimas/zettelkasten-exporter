@@ -14,8 +14,7 @@ func NewFakeStorage() FakeStorage {
 	return FakeStorage{}
 }
 
-func (f FakeStorage) WriteMetric(noteName string, metric metrics.NoteMetrics, timestamp time.Time) {
-
+func (f FakeStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) {
 }
 
 func (f FakeStorage) IsEmpty() bool {
