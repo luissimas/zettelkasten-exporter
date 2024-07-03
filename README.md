@@ -52,6 +52,21 @@ All configuration is supplied via environment variables. You should supply at le
 | IGNORE_FILES               | Comma separated list of files that will be ignored in the collection | .git,obsidian,.trash,README.md | No       |
 | LOG_LEVEL                  | The minimum log level                                                | INFO                           | No       |
 
+## Metrics
+
+The exporter collects metrics by parsing the contents of the markdown files present in the Zettelkasten. Currently the exporter stores metrics for individual notes and also aggregated metrics describing the entire Zettelkasten. The combination of raw and pre processed metrics allows for both flexibility and efficiency when querying the data, at the cost of a slightly higher storage usage. The two sets of metrics are stored in the same InfluxDB bucket under different [measurement names](https://docs.influxdata.com/influxdb/cloud/reference/key-concepts/data-elements/#measurement).
+
+The following table describes all metrics collected by the exporter and their respective measurement names:
+
+| Measurement | Name           | Description                             |
+|-------------|----------------|-----------------------------------------|
+| notes       | link_count     | Number of links in the note             |
+| notes       | word_count     | Number of words in the note             |
+| notes       | backlink_count | Number of links that reference the note |
+| total       | note_count     | Number of notes in the Zettelkasten     |
+| total       | link_count     | Number of links in the Zettelkasten     |
+| total       | word_count     | Number of words in the Zettelkasten     |
+
 ## Roadmap
 
 These are some features that I'd like to include in the future.
