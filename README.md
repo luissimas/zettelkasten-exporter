@@ -79,8 +79,6 @@ These are some features that I'd like to include in the future.
 
 https://prometheus.io/docs/instrumenting/writing_exporters/
 
-https://github.com/go-git/go-git/blob/master/_examples/pull/main.go
-
 https://medium.com/tlvince/prometheus-backfilling-a92573eb712c
 
 https://github.com/influxdata/helm-charts/tree/master/charts/influxdb2
@@ -90,3 +88,5 @@ https://grafana.com/docs/grafana/latest/getting-started/get-started-grafana-infl
 https://docs.influxdata.com/flux/v0/get-started/
 
 https://github.com/onedr0p/exportar
+
+https://github.com/mischavandenburg/zettelkasten-tracker
