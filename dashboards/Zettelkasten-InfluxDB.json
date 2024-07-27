@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
-  "id": 1,
+  "id": 67,
   "links": [],
   "panels": [
     {
@@ -82,7 +82,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -144,7 +144,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -206,7 +206,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -269,7 +269,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.0.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -355,7 +355,7 @@
           }
         ]
       },
-      "pluginVersion": "11.0.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -502,6 +502,19 @@
         }
       ],
       "title": "Notes",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "note_count": "Note count"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -592,6 +605,19 @@
         }
       ],
       "title": "Words",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "word_count": "Word count"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -683,6 +709,19 @@
         }
       ],
       "title": "Links",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "link_count": "Link count"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -774,6 +813,19 @@
         }
       ],
       "title": "Reading time",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "word_count": "Reading time"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -865,6 +917,19 @@
         }
       ],
       "title": "Average link count",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Average link count"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     },
     {
@@ -956,6 +1021,19 @@
         }
       ],
       "title": "Average word count",
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "includeByName": {},
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Average word count"
+            }
+          }
+        }
+      ],
       "type": "timeseries"
     }
   ],
@@ -968,7 +1046,7 @@
         "current": {
           "selected": false,
           "text": "influxdb",
-          "value": "cdqmo6y19tc74d"
+          "value": "cdpk3wq4tof7kc"
         },
         "hide": 0,
         "includeAll": false,
@@ -988,11 +1066,10 @@
     "from": "now-30d",
     "to": "now"
   },
-  "timeRangeUpdatedDuringEditOrView": false,
   "timepicker": {},
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 11,
+  "version": 2,
   "weekStart": ""
 }
