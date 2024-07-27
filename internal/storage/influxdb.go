@@ -1,6 +1,8 @@
 package storage
 
 import (
+	"context"
+	"log/slog"
 	"time"
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
@@ -16,24 +18,27 @@ const totalMeasurementName = "total"
 
 // InfluxDBStorage represents the implementation of a metric storage using InfluxDB.
 type InfluxDBStorage struct {
-	writeAPI api.WriteAPI
+	writeAPI api.WriteAPIBlocking
 	queryAPI api.QueryAPI
 }
 
 // NewInfluxDBStorage creates a new `InfluxDBStorage`.
 func NewInfluxDBStorage(url, org, bucket, token string) InfluxDBStorage {
 	client := influxdb2.NewClient(url, string(token))
-	writeAPI := client.WriteAPI(org, bucket)
+	writeAPI := client.WriteAPIBlocking(org, bucket)
 	queryAPI := client.QueryAPI(org)
 	return InfluxDBStorage{writeAPI: writeAPI, queryAPI: queryAPI}
 }
 
 // WriteMetric writes `metric` for `noteName` to the storage with `timestamp`.
-func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) {
+func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) error {
 	points := createInfluxDBPoints(zettelkastenMetrics, timestamp)
-	for _, point := range points {
-		i.writeAPI.WritePoint(point)
+	slog.Debug("Writing metrics to InfluxDB", slog.Any("points", points))
+	err := i.writeAPI.WritePoint(context.Background(), points...)
+	if err != nil {
+		slog.Error("Error writing points to InfluxDB storage", slog.Any("error", err))
 	}
+	return err
 }
 
 // createInfluxDBPoints creates a slice of InfluxDB measurement points from `zettelkastenMetrics` with the given `timestamp`.

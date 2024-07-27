@@ -9,5 +9,5 @@ import (
 // Storage represents a storage for metrics.
 type Storage interface {
 	// WriteMetric writes the `zettelkastenMetrics` to the storage.
-	WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time)
+	WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) error
 }
