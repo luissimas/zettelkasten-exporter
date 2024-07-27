@@ -5,6 +5,7 @@ import (
 
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
+	"github.com/influxdata/influxdb-client-go/v2/api/write"
 
 	"github.com/luissimas/zettelkasten-exporter/internal/metrics"
 )
@@ -29,6 +30,15 @@ func NewInfluxDBStorage(url, org, bucket, token string) InfluxDBStorage {
 
 // WriteMetric writes `metric` for `noteName` to the storage with `timestamp`.
 func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) {
+	points := createInfluxDBPoints(zettelkastenMetrics, timestamp)
+	for _, point := range points {
+		i.writeAPI.WritePoint(point)
+	}
+}
+
+// createInfluxDBPoints creates a slice of InfluxDB measurement points from `zettelkastenMetrics` with the given `timestamp`.
+func createInfluxDBPoints(zettelkastenMetrics metrics.Metrics, timestamp time.Time) []*write.Point {
+	points := make([]*write.Point, 0, len(zettelkastenMetrics.Notes)+1)
 	// Aggregated metrics
 	point := influxdb2.NewPoint(
 		totalMeasurementName,
@@ -40,11 +50,11 @@ func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, times
 		},
 		timestamp,
 	)
-	i.writeAPI.WritePoint(point)
+	points = append(points, point)
 
 	// Individual note metrics
 	for name, metric := range zettelkastenMetrics.Notes {
-		point := influxdb2.NewPoint(
+		point = influxdb2.NewPoint(
 			notesMeasurementName,
 			map[string]string{"name": name},
 			map[string]interface{}{
@@ -54,6 +64,7 @@ func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, times
 			},
 			timestamp,
 		)
-		i.writeAPI.WritePoint(point)
+		points = append(points, point)
 	}
+	return points
 }

@@ -118,6 +118,31 @@ func TestLoadConfig_FullEnvGit(t *testing.T) {
 	}
 }
 
+func TestLoadConfig_FullEnvGitVictoriaMetrics(t *testing.T) {
+	t.Setenv("VICTORIAMETRICS_URL", "http://localhost:8428")
+	t.Setenv("COLLECTION_INTERVAL", "15m")
+	t.Setenv("COLLECT_HISTORICAL_METRICS", "false")
+	t.Setenv("LOG_LEVEL", "ERROR")
+	t.Setenv("ZETTELKASTEN_GIT_URL", "https://github.com/user/zettel")
+	t.Setenv("ZETTELKASTEN_GIT_BRANCH", "any-branch")
+	t.Setenv("ZETTELKASTEN_GIT_TOKEN", "any-token")
+	t.Setenv("IGNORE_FILES", ".obsidian,test,/something/another,dir/file.md")
+	c, err := LoadConfig()
+	if assert.NoError(t, err) {
+		expected := Config{
+			VictoriaMetricsURL:       "http://localhost:8428",
+			CollectionInterval:       time.Minute * 15,
+			CollectHistoricalMetrics: false,
+			LogLevel:                 slog.LevelError,
+			ZettelkastenGitURL:       "https://github.com/user/zettel",
+			ZettelkastenGitBranch:    "any-branch",
+			ZettelkastenGitToken:     "any-token",
+			IgnoreFiles:              []string{".obsidian", "test", "/something/another", "dir/file.md"},
+		}
+		assert.Equal(t, expected, c)
+	}
+}
+
 func TestLoadConfig_Validate(t *testing.T) {
 	data := []struct {
 		name        string
@@ -138,6 +163,28 @@ func TestLoadConfig_Validate(t *testing.T) {
 				"LOG_LEVEL":              "INFO",
 				"ZETTELKASTEN_DIRECTORY": "/any/dir",
 				"ZETTELKASTEN_GIT_URL":   "any-string",
+			},
+		},
+		{
+			name:        "missing influxdb auth",
+			shouldError: true,
+			env: map[string]string{
+				"LOG_LEVEL":            "INFO",
+				"ZETTELKASTEN_GIT_URL": "any-string",
+				"INFLUXDB_URL":         "http://localhost:8086",
+			},
+		},
+		{
+			name:        "both storage",
+			shouldError: true,
+			env: map[string]string{
+				"LOG_LEVEL":            "INFO",
+				"ZETTELKASTEN_GIT_URL": "any-string",
+				"INFLUXDB_URL":         "http://localhost:8086",
+				"INFLUXDB_TOKEN":       "any-token",
+				"INFLUXDB_ORG":         "any-org",
+				"INFLUXDB_BUCKET":      "any-bucket",
+				"VICTORIAMETRICS_URL":  "httpL//localhost:8428",
 			},
 		},
 		{

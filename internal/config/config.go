@@ -22,10 +22,11 @@ type Config struct {
 	IgnoreFiles              []string      `koanf:"ignore_files"`
 	CollectionInterval       time.Duration `koanf:"collection_interval"`
 	CollectHistoricalMetrics bool          `koanf:"collect_historical_metrics"`
-	InfluxDBURL              string        `koanf:"influxdb_url" validate:"required|fullUrl"`
-	InfluxDBToken            string        `koanf:"influxdb_token" validate:"required"`
-	InfluxDBOrg              string        `koanf:"influxdb_org" validate:"required"`
-	InfluxDBBucket           string        `koanf:"influxdb_bucket" validate:"required"`
+	VictoriaMetricsURL       string        `koanf:"victoriametrics_url" validate:"fullUrl"`
+	InfluxDBURL              string        `koanf:"influxdb_url" validate:"fullUrl"`
+	InfluxDBToken            string        `koanf:"influxdb_token" validate:"requiredWith:InfluxDBURL"`
+	InfluxDBOrg              string        `koanf:"influxdb_org" validate:"requiredWith:InfluxDBURL"`
+	InfluxDBBucket           string        `koanf:"influxdb_bucket" validate:"requiredWith:InfluxDBURL"`
 }
 
 func LoadConfig() (Config, error) {
@@ -75,6 +76,12 @@ func LoadConfig() (Config, error) {
 	if cfg.ZettelkastenGitURL != "" && cfg.ZettelkastenDirectory != "" {
 		return Config{}, errors.New("ZettelkastenGitURL and ZettelkastenDirectory cannot be provided together")
 	}
+	if cfg.VictoriaMetricsURL != "" && cfg.InfluxDBURL != "" {
+		return Config{}, errors.New("InfluxDBURL and VictoriaMetricsURL cannot be provided together")
+	}
+	if cfg.VictoriaMetricsURL == "" && cfg.InfluxDBURL == "" {
+		return Config{}, errors.New("Either InfluxDBURL or VictoriaMetricsURL must be provided")
+	}
 
 	return cfg, nil
 }
@@ -89,6 +96,7 @@ func (c Config) LogValue() slog.Value {
 		slog.Any("IgnoreFiles", c.IgnoreFiles),
 		slog.Duration("CollectionInterval", c.CollectionInterval),
 		slog.Bool("CollectHistoricalMetrics", c.CollectHistoricalMetrics),
+		slog.String("VictoriaMetricsURL", c.VictoriaMetricsURL),
 		slog.String("InfluxDBURL", c.InfluxDBURL),
 		slog.String("InfluxDBToken", "[REDACTED]"),
 		slog.String("InfluxDBOrg", c.InfluxDBOrg),

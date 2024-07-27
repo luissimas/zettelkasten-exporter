@@ -5,6 +5,7 @@ go 1.22.2
 require (
 	github.com/gookit/validate v1.5.2
 	github.com/influxdata/influxdb-client-go/v2 v2.13.0
+	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839
 	github.com/knadh/koanf v1.5.0
 	github.com/stretchr/testify v1.9.0
 	github.com/yuin/goldmark v1.7.4
@@ -19,7 +20,6 @@ require (
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/gookit/filter v1.2.1 // indirect
 	github.com/gookit/goutil v0.6.15 // indirect
-	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
