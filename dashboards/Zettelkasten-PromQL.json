@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
-  "id": 67,
+  "id": 1,
   "links": [],
   "panels": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Number of notes created in the visualization period",
@@ -68,9 +68,10 @@
       "id": 4,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -82,15 +83,23 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.1.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "increase(total_note_count[$__range])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"note_count\")\n  |> spread()",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "New notes",
@@ -98,7 +107,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Number of links created in the visualization period",
@@ -130,9 +139,10 @@
       "id": 5,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -144,15 +154,23 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.1.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "increase(total_link_count[$__range])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"link_count\")\n  |> spread()",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "New links",
@@ -160,7 +178,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Number of words written in the visualization period",
@@ -192,9 +210,10 @@
       "id": 6,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -206,15 +225,23 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.1.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "increase(total_word_count[$__range])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"word_count\")\n  |> spread()",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "New words",
@@ -222,7 +249,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Time to read all notes created in the visualization period",
@@ -255,9 +282,10 @@
       "id": 10,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
+        "percentChangeColorMode": "standard",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
@@ -269,15 +297,25 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.1.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "round(increase(total_word_count[$__range]) / 212, 1)",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": false,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\" and r[\"_field\"] == \"word_count\")\n  |> map(fn: (r) => ({r with _value: r._value / uint(v: 212)}))\n  |> spread()",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Reading time",
@@ -285,7 +323,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Metrics from each markdown note in the Zettelkasten",
@@ -347,6 +385,7 @@
           ],
           "show": true
         },
+        "frameIndex": 1,
         "showHeader": true,
         "sortBy": [
           {
@@ -355,19 +394,92 @@
           }
         ]
       },
-      "pluginVersion": "10.4.1",
+      "pluginVersion": "11.1.1",
       "targets": [
         {
           "datasource": {
             "type": "influxdb",
             "uid": "edogaymh9y96of"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "notes_link_count",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
-          "refId": "A"
+          "range": false,
+          "refId": "Link",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "notes_backlink_count",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
+          "range": false,
+          "refId": "Backlinks",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "notes_word_count",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
+          "range": false,
+          "refId": "Words",
+          "useBackend": false
+        },
+        {
+          "datasource": {
+            "type": "influxdb",
+            "uid": "edogaymh9y96of"
+          },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "exemplar": false,
+          "expr": "round(notes_word_count / 212, 1)",
+          "fullMetaSearch": false,
+          "hide": false,
+          "includeNullMetadata": true,
+          "instant": true,
+          "legendFormat": "__auto",
+          "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
+          "range": false,
+          "refId": "Reading time",
+          "useBackend": false
         }
       ],
       "title": "Notes",
       "transformations": [
+        {
+          "id": "joinByLabels",
+          "options": {
+            "value": "__name__"
+          }
+        },
         {
           "id": "organize",
           "options": {
@@ -378,18 +490,21 @@
             },
             "includeByName": {},
             "indexByName": {
-              "_measurement": 0,
-              "backlink_count": 3,
-              "link_count": 2,
-              "name": 1,
-              "time_to_read": 5,
-              "word_count": 4
+              "Value": 4,
+              "name": 0,
+              "notes_backlink_count": 2,
+              "notes_link_count": 1,
+              "notes_word_count": 3
             },
             "renameByName": {
+              "Value": "Reading time",
               "_start": "",
               "backlink_count": "Backlinks",
               "link_count": "Links",
               "name": "Name",
+              "notes_backlink_count": "Backlinks",
+              "notes_link_count": "Links",
+              "notes_word_count": "Words",
               "time_to_read": "Reading time",
               "word_count": "Words"
             }
@@ -413,7 +528,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of the number of notes in the Zettelkasten",
@@ -449,7 +564,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -497,8 +612,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "total_note_count",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"note_count\")",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Notes",
@@ -510,7 +633,8 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
-              "note_count": "Note count"
+              "note_count": "Note count",
+              "total_note_count": "Note count"
             }
           }
         }
@@ -519,7 +643,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of words in the Zettelkasten",
@@ -552,7 +676,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -600,8 +724,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "total_word_count",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Words",
@@ -613,6 +745,7 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
+              "total_word_count": "Word count",
               "word_count": "Word count"
             }
           }
@@ -622,7 +755,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of the number of links in the Zettelkasten",
@@ -655,7 +788,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -704,8 +837,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "total_link_count",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"link_count\")",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Links",
@@ -717,7 +858,8 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
-              "link_count": "Link count"
+              "link_count": "Link count",
+              "total_link_count": "Link count"
             }
           }
         }
@@ -726,7 +868,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of the total reading time for the Zettelkasten",
@@ -759,7 +901,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -808,8 +950,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "builder",
+          "expr": "total_word_count / 212",
+          "fullMetaSearch": false,
+          "includeNullMetadata": true,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")\n  |> map(fn: (r) => ({r with _value: r._value / uint(v: 212)}))",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Reading time",
@@ -821,6 +971,7 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
+              "total_word_count / 212": "Reading time",
               "word_count": "Reading time"
             }
           }
@@ -830,7 +981,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of the average number of links per note in the Zettelkasten",
@@ -863,7 +1014,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -912,8 +1063,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(notes_link_count[$__range]) / count(notes_link_count[$__range])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"link_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Average link count",
@@ -925,7 +1084,8 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
-              "Value": "Average link count"
+              "Value": "Average link count",
+              "sum(notes_link_count[2592000s]) / count(notes_link_count[2592000s])": "Average link count"
             }
           }
         }
@@ -934,7 +1094,7 @@
     },
     {
       "datasource": {
-        "type": "influxdb",
+        "type": "prometheus",
         "uid": "${datasource}"
       },
       "description": "Historical evolution of the average number of words per note in the Zettelkasten",
@@ -967,7 +1127,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": true,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -1016,8 +1176,16 @@
             "type": "influxdb",
             "uid": "${datasource}"
           },
+          "disableTextWrap": false,
+          "editorMode": "code",
+          "expr": "sum(notes_word_count[$__range]) / count(notes_word_count[$__range])",
+          "fullMetaSearch": false,
+          "includeNullMetadata": false,
+          "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"word_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
-          "refId": "A"
+          "range": true,
+          "refId": "A",
+          "useBackend": false
         }
       ],
       "title": "Average word count",
@@ -1029,7 +1197,8 @@
             "includeByName": {},
             "indexByName": {},
             "renameByName": {
-              "Value": "Average word count"
+              "Value": "Average word count",
+              "sum(notes_word_count[2592000s]) / count(notes_word_count[2592000s])": "Average word count"
             }
           }
         }
@@ -1045,8 +1214,8 @@
       {
         "current": {
           "selected": false,
-          "text": "influxdb",
-          "value": "cdpk3wq4tof7kc"
+          "text": "prometheus",
+          "value": "ddt7nsuyconb4a"
         },
         "hide": 0,
         "includeAll": false,
@@ -1054,7 +1223,7 @@
         "multi": false,
         "name": "datasource",
         "options": [],
-        "query": "influxdb",
+        "query": "prometheus",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1070,6 +1239,6 @@
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 2,
+  "version": 3,
   "weekStart": ""
 }

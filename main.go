@@ -21,8 +21,13 @@ func main() {
 		os.Exit(1)
 	}
 	slog.Debug("Loaded config", slog.Any("config", cfg))
-	storage := storage.NewInfluxDBStorage(cfg.InfluxDBURL, cfg.InfluxDBOrg, cfg.InfluxDBBucket, cfg.InfluxDBToken)
-	collector := collector.NewCollector(cfg.IgnoreFiles, storage)
+	var metricsStorage storage.Storage
+	if cfg.VictoriaMetricsURL != "" {
+		metricsStorage = storage.NewVictoriaMetricsStorage(cfg.VictoriaMetricsURL)
+	} else {
+		metricsStorage = storage.NewInfluxDBStorage(cfg.InfluxDBURL, cfg.InfluxDBOrg, cfg.InfluxDBBucket, cfg.InfluxDBToken)
+	}
+	collector := collector.NewCollector(cfg.IgnoreFiles, metricsStorage)
 	var zet zettelkasten.Zettelkasten
 	if cfg.ZettelkastenGitURL != "" {
 		zet = zettelkasten.NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch, cfg.ZettelkastenGitToken)
