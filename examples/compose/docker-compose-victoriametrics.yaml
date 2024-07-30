@@ -1,0 +1,38 @@
+# This is a sample compose file for deploying the zettelkasten-exporter
+# using an VictoriaMetrics storage.
+volumes:
+  grafana-data: {}
+  victoriametrics-data: {}
+
+services:
+  grafana:
+    image: grafana/grafana
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafan
+    ports:
+      - 3000:3000
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:latest
+    # In your own setup you'll probably want to specify a longer
+    # retention period.
+    command: -retentionPeriod=1w
+    restart: unless-stopped
+    ports:
+      - 8428:8428
+    volumes:
+      - victoriametrics-data:/victoria-metrics-data
+  zettelkasten-exporter:
+    image: ghcr.io/luissimas/zettelkasten-exporter:latest
+    restart: unless-stopped
+    depends_on:
+      - victoriametrics
+    environment:
+      LOG_LEVEL: INFO
+      # Here we use a local directory for simplicity, but check out the
+      # README to see how to configure different sources such as git repositories.
+      ZETTELKASTEN_DIRECTORY: /sample
+      COLLECTION_INTERVAL: 10s
+      VICTORIAMETRICS_URL: http://victoriametrics:8428
+    volumes:
+      - ./sample:/sample
