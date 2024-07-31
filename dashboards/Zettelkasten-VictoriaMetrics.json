@@ -18,7 +18,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 2,
-  "id": 1,
+  "id": 74,
   "links": [],
   "panels": [
     {
@@ -83,7 +83,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -154,7 +154,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -225,7 +225,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -297,7 +297,7 @@
         "textMode": "auto",
         "wideLayout": true
       },
-      "pluginVersion": "11.1.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -394,7 +394,7 @@
           }
         ]
       },
-      "pluginVersion": "11.1.1",
+      "pluginVersion": "10.4.1",
       "targets": [
         {
           "datasource": {
@@ -407,10 +407,10 @@
           "expr": "notes_link_count",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "instant": true,
+          "instant": false,
           "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
-          "range": false,
+          "range": true,
           "refId": "Link",
           "useBackend": false
         },
@@ -426,10 +426,10 @@
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "instant": true,
+          "instant": false,
           "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
-          "range": false,
+          "range": true,
           "refId": "Backlinks",
           "useBackend": false
         },
@@ -445,10 +445,10 @@
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "instant": true,
+          "instant": false,
           "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
-          "range": false,
+          "range": true,
           "refId": "Words",
           "useBackend": false
         },
@@ -464,10 +464,10 @@
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
-          "instant": true,
+          "instant": false,
           "legendFormat": "__auto",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\")\n  |> last()\n  |> pivot(rowKey: [\"name\"], columnKey: [\"_field\"], valueColumn: \"_value\")\n  |> map(fn: (r) => ({\n    _measurement: r._measurement,\n    name: r.name,\n    backlink_count: r.backlink_count,\n    link_count: r.link_count,\n    word_count: r.word_count,\n    time_to_read: r.word_count / uint(v: 212)\n    }))\n  |> group()",
-          "range": false,
+          "range": true,
           "refId": "Reading time",
           "useBackend": false
         }
@@ -478,6 +478,69 @@
           "id": "joinByLabels",
           "options": {
             "value": "__name__"
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Backlinks": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "Links": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "Name": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Reading time": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "Value": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "Words": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "name": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "notes_backlink_count": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "notes_link_count": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              },
+              "notes_word_count": {
+                "aggregations": [
+                  "lastNotNull"
+                ],
+                "operation": "aggregate"
+              }
+            }
           }
         },
         {
@@ -498,13 +561,17 @@
             },
             "renameByName": {
               "Value": "Reading time",
+              "Value (lastNotNull)": "Reading time",
               "_start": "",
               "backlink_count": "Backlinks",
               "link_count": "Links",
               "name": "Name",
               "notes_backlink_count": "Backlinks",
+              "notes_backlink_count (lastNotNull)": "Backlinks",
               "notes_link_count": "Links",
+              "notes_link_count (lastNotNull)": "Link",
               "notes_word_count": "Words",
+              "notes_word_count (lastNotNull)": "Words",
               "time_to_read": "Reading time",
               "word_count": "Words"
             }
@@ -1214,8 +1281,8 @@
       {
         "current": {
           "selected": false,
-          "text": "prometheus",
-          "value": "ddt7nsuyconb4a"
+          "text": "VictoriaMetrics",
+          "value": "ddtb7bf1wmgaod"
         },
         "hide": 0,
         "includeAll": false,
@@ -1239,6 +1306,6 @@
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 3,
+  "version": 2,
   "weekStart": ""
 }
