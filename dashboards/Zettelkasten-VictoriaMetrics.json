@@ -684,7 +684,7 @@
           "expr": "total_note_count",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "__auto",
+          "legendFormat": "Note count",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"note_count\")",
           "range": true,
           "refId": "A",
@@ -692,20 +692,6 @@
         }
       ],
       "title": "Notes",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "note_count": "Note count",
-              "total_note_count": "Note count"
-            }
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -796,7 +782,7 @@
           "expr": "total_word_count",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "__auto",
+          "legendFormat": "Word count",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")",
           "range": true,
           "refId": "A",
@@ -804,20 +790,6 @@
         }
       ],
       "title": "Words",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "total_word_count": "Word count",
-              "word_count": "Word count"
-            }
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -909,7 +881,7 @@
           "expr": "total_link_count",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "__auto",
+          "legendFormat": "Link count",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"link_count\")",
           "range": true,
           "refId": "A",
@@ -917,20 +889,6 @@
         }
       ],
       "title": "Links",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "link_count": "Link count",
-              "total_link_count": "Link count"
-            }
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -1022,7 +980,7 @@
           "expr": "total_word_count / 212",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
-          "legendFormat": "__auto",
+          "legendFormat": "Reading time",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"total\")\n  |> filter(fn: (r) => r[\"_field\"] == \"word_count\")\n  |> map(fn: (r) => ({r with _value: r._value / uint(v: 212)}))",
           "range": true,
           "refId": "A",
@@ -1030,20 +988,6 @@
         }
       ],
       "title": "Reading time",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "total_word_count / 212": "Reading time",
-              "word_count": "Reading time"
-            }
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -1135,7 +1079,7 @@
           "expr": "sum(notes_link_count[$__range]) / count(notes_link_count[$__range])",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
-          "legendFormat": "__auto",
+          "legendFormat": "Link count",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"link_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
           "range": true,
           "refId": "A",
@@ -1143,20 +1087,6 @@
         }
       ],
       "title": "Average link count",
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {},
-            "includeByName": {},
-            "indexByName": {},
-            "renameByName": {
-              "Value": "Average link count",
-              "sum(notes_link_count[2592000s]) / count(notes_link_count[2592000s])": "Average link count"
-            }
-          }
-        }
-      ],
       "type": "timeseries"
     },
     {
@@ -1248,7 +1178,7 @@
           "expr": "sum(notes_word_count[$__range]) / count(notes_word_count[$__range])",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
-          "legendFormat": "__auto",
+          "legendFormat": "Word count",
           "query": "from(bucket: v.defaultBucket)\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r[\"_measurement\"] == \"notes\" and r[\"_field\"] == \"word_count\")\n  |> group(columns: [\"__time\"])\n  |> aggregateWindow(\n   every: v.windowPeriod,\n   fn: (column, tables=<-) => tables |> mean(),\n   column: \"name\",\n   createEmpty: false\n)",
           "range": true,
           "refId": "A",
@@ -1265,6 +1195,7 @@
             "indexByName": {},
             "renameByName": {
               "Value": "Average word count",
+              "sum(notes_word_count[2332800s]) / count(notes_word_count[2332800s])": "Average word count",
               "sum(notes_word_count[2592000s]) / count(notes_word_count[2592000s])": "Average word count"
             }
           }
@@ -1306,6 +1237,6 @@
   "timezone": "browser",
   "title": "Zettelkasten",
   "uid": "fdoghlpqzr5kwe",
-  "version": 2,
+  "version": 4,
   "weekStart": ""
 }
