@@ -3,7 +3,7 @@ module github.com/luissimas/zettelkasten-exporter
 go 1.22.2
 
 require (
-	github.com/gookit/validate v1.5.3
+	github.com/gookit/validate v1.5.4
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839
 	github.com/knadh/koanf v1.5.0
@@ -18,7 +18,7 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/google/uuid v1.3.1 // indirect
-	github.com/gookit/filter v1.2.1 // indirect
+	github.com/gookit/filter v1.2.2 // indirect
 	github.com/gookit/goutil v0.6.18 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
