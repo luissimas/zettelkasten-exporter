@@ -2,7 +2,7 @@ BINARY_NAME=zettelkasten-exporter
 
 .PHONY: all clean format vet lint test build run
 
-all: format vet build test
+all: format lint vet build test
 
 clean:
 	go clean
