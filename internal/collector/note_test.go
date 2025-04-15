@@ -62,7 +62,7 @@ another [[link]]`,
 			expected: metrics.NoteMetrics{
 				Links:         map[string]uint{"link": 2, "note": 1},
 				LinkCount:     3,
-				WordCount:     4,
+				WordCount:     6,
 				BacklinkCount: 0,
 			},
 		},
