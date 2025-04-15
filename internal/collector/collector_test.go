@@ -53,7 +53,7 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 	expected := metrics.Metrics{
 		NoteCount: 4,
 		LinkCount: 8,
-		WordCount: 43,
+		WordCount: 44,
 		Notes: map[string]metrics.NoteMetrics{
 			"one": {
 				Links:         map[string]uint{"two": 2},
@@ -64,7 +64,7 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 			"two": {
 				Links:         map[string]uint{"one": 1},
 				LinkCount:     1,
-				WordCount:     5,
+				WordCount:     6,
 				BacklinkCount: 4,
 			},
 			"three": {
