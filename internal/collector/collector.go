@@ -77,7 +77,12 @@ func (c *Collector) collectMetrics(root fs.FS) (metrics.Metrics, error) {
 			slog.Error("Error opening file", slog.Any("error", err), slog.String("path", path))
 			return nil
 		}
-		defer f.Close()
+		defer func() {
+			err := f.Close()
+			if err != nil {
+				slog.Warn("Error closing file", slog.Any("error", err), slog.String("path", path))
+			}
+		}()
 		content, err := io.ReadAll(f)
 		if err != nil {
 			slog.Error("Error reading file", slog.Any("error", err), slog.String("path", path))
