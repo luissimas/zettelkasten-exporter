@@ -18,7 +18,7 @@ lint:
 	golangci-lint run
 
 test:
-	go test ./...
+	go test ./... -cover
 
 build:
 	go build -o bin/$(BINARY_NAME)
