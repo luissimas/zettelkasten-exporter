@@ -1,6 +1,6 @@
 module github.com/luissimas/zettelkasten-exporter
 
-go 1.22.2
+go 1.24.2
 
 require (
 	github.com/gookit/validate v1.5.4
