@@ -3,6 +3,8 @@ package zettelkasten
 import (
 	"io/fs"
 	"time"
+
+	"github.com/luissimas/zettelkasten-exporter/internal/config"
 )
 
 // Zettelkasten represents a Zettelkasten.
@@ -18,3 +20,12 @@ type Zettelkasten interface {
 // WalkFunc is the type of function called by `Zettelkasten.WalkHistory` to
 // process all points in the history of the zettelkasten.
 type WalkFunc func(root fs.FS, timestamp time.Time) error
+
+// NewZettelkasten creates a new Zettelkasten from the given config.
+func NewZettelkasten(cfg config.Config) Zettelkasten {
+	if cfg.ZettelkastenGitURL != "" {
+		return NewGitZettelkasten(cfg.ZettelkastenGitURL, cfg.ZettelkastenGitBranch, cfg.ZettelkastenGitToken)
+	}
+
+	return NewLocalZettelkasten(cfg.ZettelkastenDirectory)
+}

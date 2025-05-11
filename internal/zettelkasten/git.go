@@ -69,8 +69,8 @@ func (g GitZettelkasten) WalkHistory(walkFunc WalkFunc) error {
 	if err != nil {
 		return fmt.Errorf("error walking zettelkasten history: %w", err)
 	}
-	lines := strings.Split(log, "\n")
-	for _, line := range lines {
+	lines := strings.SplitSeq(log, "\n")
+	for line := range lines {
 		splited := strings.SplitN(line, " ", 2)
 		commit := splited[0]
 		date, err := time.Parse("2006-01-02 15:04:05 -0700", splited[1])

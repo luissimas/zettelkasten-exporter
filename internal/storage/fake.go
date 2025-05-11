@@ -14,7 +14,7 @@ func NewFakeStorage() FakeStorage {
 	return FakeStorage{}
 }
 
-func (f FakeStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) error {
+func (f FakeStorage) WriteMetrics(zettelkastenMetrics metrics.ZettelkastenMetrics, timestamp time.Time) error {
 	return nil
 }
 
