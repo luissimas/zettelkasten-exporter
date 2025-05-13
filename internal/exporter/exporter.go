@@ -34,7 +34,7 @@ func NewExporter(cfg config.Config, zettelkasten zettelkasten.Zettelkasten, stor
 }
 
 // Start starts the exporter loop.
-func (e *Exporter) Start(ctx context.Context) {
+func (e *Exporter) Start(ctx context.Context) error {
 	// Collect historical data
 	if e.config.CollectHistoricalMetrics {
 		slog.Info("Collecting historical metrics")
@@ -42,12 +42,14 @@ func (e *Exporter) Start(ctx context.Context) {
 		err := e.zettelkasten.Ensure()
 		if err != nil {
 			slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
+			return err
 		}
 
 		slog.Info("Walking zettelkasten history")
 		err = e.zettelkasten.WalkHistory(e.collectMetrics)
 		if err != nil {
 			slog.Error("Error walking history", slog.Any("error", err))
+			return err
 		}
 
 		slog.Info("Collected historical metrics", slog.Duration("duration", time.Since(start)))
@@ -60,17 +62,19 @@ func (e *Exporter) Start(ctx context.Context) {
 			err := e.zettelkasten.Ensure()
 			if err != nil {
 				slog.Error("Error ensuring that zettelkasten is ready", slog.Any("error", err))
+				return err
 			}
 
 			err = e.collectMetrics(e.zettelkasten.GetRoot(), t)
 			if err != nil {
 				slog.Error("Error collecting metrics", slog.Any("error", err))
+				return err
 			}
 
 			slog.Info("Collected metrics", slog.Duration("duration", time.Since(t)), slog.Time("next_run", time.Now().Add(e.config.CollectionInterval)))
 		case <-ctx.Done():
 			slog.Info("Stopping metrics collection")
-			return
+			return nil
 		}
 	}
 }

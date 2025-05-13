@@ -36,5 +36,8 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 
-	exporter.Start(ctx)
+	if err := exporter.Start(ctx); err != nil {
+		slog.Error("Error on exporter", slog.Any("error", err))
+		os.Exit(1)
+	}
 }
