@@ -43,7 +43,12 @@ func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
 		case *wikilink.Node:
 			linkTarget = string(v.Target)
 		case *ast.ListItem:
-			lines := n.FirstChild().Lines()
+			child := n.FirstChild()
+			if child == nil {
+				return ast.WalkContinue, nil
+			}
+
+			lines := child.Lines()
 			if lines == nil {
 				return ast.WalkContinue, nil
 			}
