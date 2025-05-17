@@ -48,6 +48,10 @@ Links to [[one]] but also to [[two|two with an alias]]
 created-at: "2024-05-29"
 ---
 Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/two.md|full link with .md]]
+
+- item
+-
+- another item
 		`)},
 		"ignoredir/foo":         {Data: []byte("Foo contents")},
 		"ignoredir/bar":         {Data: []byte("Bar contents")},
@@ -59,7 +63,7 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 	expected := metrics.ZettelkastenMetrics{
 		NoteCount: 4,
 		LinkCount: 8,
-		WordCount: 44,
+		WordCount: 47,
 		Notes: map[string]metrics.NoteMetrics{
 			"one": {
 				Links:         map[string]uint{"two": 2},
@@ -82,7 +86,7 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 			"four": {
 				Links:         map[string]uint{"one": 1, "three": 1, "two": 1},
 				LinkCount:     3,
-				WordCount:     15,
+				WordCount:     18,
 				BacklinkCount: 0,
 			},
 		},
