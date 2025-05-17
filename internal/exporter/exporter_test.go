@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"testing"
 	"testing/fstest"
 	"time"
@@ -10,9 +11,10 @@ import (
 	"github.com/luissimas/zettelkasten-exporter/internal/storage"
 	"github.com/luissimas/zettelkasten-exporter/internal/zettelkasten"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func Test_scrapeMetrics(t *testing.T) {
+func TestStart(t *testing.T) {
 	fs := fstest.MapFS{
 		"zettel/one.md": {Data: []byte(`
 ---
@@ -52,7 +54,8 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 		"ignoredir/test.md":     {Data: []byte("Test.md contents")},
 		"zettel/dir1/ignore.md": {Data: []byte("Ignore.md contents")},
 	}
-	c := NewExporter(config.Config{IgnoreFiles: []string{"ignore.md", "ignoredir"}, CollectionInterval: time.Second}, zettelkasten.NewFakeZettelkasten(), storage.NewFakeStorage())
+	fakeStorage := storage.NewFakeStorage()
+	exporter := NewExporter(config.Config{IgnoreFiles: []string{"ignore.md", "ignoredir"}, CollectionInterval: time.Millisecond * 10}, zettelkasten.NewFakeZettelkasten(fs), &fakeStorage)
 	expected := metrics.ZettelkastenMetrics{
 		NoteCount: 4,
 		LinkCount: 8,
@@ -84,10 +87,13 @@ Link to [one](one.md) and also a full link [[./dir1/dir2/three]] and a [[dir1/tw
 			},
 		},
 	}
-	metrics, err := c.scrapeMetrics(fs)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+	defer cancel()
+	err := exporter.Start(ctx)
 
-	if err != nil {
-		t.Fatalf("Expected no error, got %v", err)
+	require.NoError(t, err)
+	assert.Equal(t, len(fakeStorage.Metrics), 10)
+	for _, metric := range fakeStorage.Metrics {
+		assert.Equal(t, expected, metric)
 	}
-	assert.Equal(t, expected, metrics)
 }

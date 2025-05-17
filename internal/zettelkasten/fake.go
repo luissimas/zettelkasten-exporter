@@ -1,12 +1,17 @@
 package zettelkasten
 
-import "io/fs"
+import (
+	"io/fs"
+	"time"
+)
 
 // FakeZettelkasten represents a fake implementation of Zettelkasten to be used in tests.
-type FakeZettelkasten struct{}
+type FakeZettelkasten struct {
+	fs fs.FS
+}
 
-func NewFakeZettelkasten() FakeZettelkasten {
-	return FakeZettelkasten{}
+func NewFakeZettelkasten(fs fs.FS) FakeZettelkasten {
+	return FakeZettelkasten{fs: fs}
 }
 
 func (f FakeZettelkasten) Ensure() error {
@@ -14,9 +19,9 @@ func (f FakeZettelkasten) Ensure() error {
 }
 
 func (f FakeZettelkasten) GetRoot() fs.FS {
-	return nil
+	return f.fs
 }
 
 func (f FakeZettelkasten) WalkHistory(walkFunc WalkFunc) error {
-	return nil
+	return walkFunc(f.fs, time.Now())
 }
