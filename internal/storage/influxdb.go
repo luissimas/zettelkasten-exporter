@@ -31,7 +31,7 @@ func NewInfluxDBStorage(url, org, bucket, token string) InfluxDBStorage {
 }
 
 // WriteMetric writes `metric` for `noteName` to the storage with `timestamp`.
-func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) error {
+func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.ZettelkastenMetrics, timestamp time.Time) error {
 	points := createInfluxDBPoints(zettelkastenMetrics, timestamp)
 	slog.Debug("Writing metrics to InfluxDB", slog.Any("points", points))
 	err := i.writeAPI.WritePoint(context.Background(), points...)
@@ -42,7 +42,7 @@ func (i InfluxDBStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, times
 }
 
 // createInfluxDBPoints creates a slice of InfluxDB measurement points from `zettelkastenMetrics` with the given `timestamp`.
-func createInfluxDBPoints(zettelkastenMetrics metrics.Metrics, timestamp time.Time) []*write.Point {
+func createInfluxDBPoints(zettelkastenMetrics metrics.ZettelkastenMetrics, timestamp time.Time) []*write.Point {
 	points := make([]*write.Point, 0, len(zettelkastenMetrics.Notes)+1)
 	// Aggregated metrics
 	point := influxdb2.NewPoint(

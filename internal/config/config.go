@@ -80,7 +80,7 @@ func LoadConfig() (Config, error) {
 		return Config{}, errors.New("InfluxDBURL and VictoriaMetricsURL cannot be provided together")
 	}
 	if cfg.VictoriaMetricsURL == "" && cfg.InfluxDBURL == "" {
-		return Config{}, errors.New("Either InfluxDBURL or VictoriaMetricsURL must be provided")
+		return Config{}, errors.New("either InfluxDBURL or VictoriaMetricsURL must be provided")
 	}
 
 	return cfg, nil

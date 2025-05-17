@@ -20,7 +20,7 @@ func NewVictoriaMetricsStorage(url string) VictoriaMetricsStorage {
 	return VictoriaMetricsStorage{writeUrl: fmt.Sprintf("%s/api/v2/write", url)}
 }
 
-func (v VictoriaMetricsStorage) WriteMetrics(zettelkastenMetrics metrics.Metrics, timestamp time.Time) error {
+func (v VictoriaMetricsStorage) WriteMetrics(zettelkastenMetrics metrics.ZettelkastenMetrics, timestamp time.Time) error {
 	// NOTE: we encode the metrics in the InfluxDB line protocol and write them to the VictoriaMetrics write endpoint.
 	// Reference: https://docs.victoriametrics.com/#how-to-send-data-from-influxdb-compatible-agents-such-as-telegraf
 	points := createInfluxDBPoints(zettelkastenMetrics, timestamp)
