@@ -43,7 +43,12 @@ func CollectNoteMetrics(content []byte) metrics.NoteMetrics {
 		case *wikilink.Node:
 			linkTarget = string(v.Target)
 		case *ast.ListItem:
-			text := string(n.FirstChild().Lines().Value(content))
+			lines := n.FirstChild().Lines()
+			if lines == nil {
+				return ast.WalkContinue, nil
+			}
+
+			text := string(lines.Value(content))
 			fields := strings.FieldsFunc(string(text), func(r rune) bool { return unicode.IsSpace(r) || r == '\n' })
 			noteMetrics.WordCount += uint(len(fields))
 		case *ast.Paragraph:
