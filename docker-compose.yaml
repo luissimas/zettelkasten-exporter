@@ -1,0 +1,44 @@
+volumes:
+  grafana-data:
+    driver: local
+  victoriametrics-data:
+    driver: local
+
+services:
+  grafana:
+    image: grafana/grafana:12.0.0
+    restart: unless-stopped
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    ports:
+      - 3000:3000
+    depends_on:
+      victoriametrics:
+        condition: service_healthy
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.117.1
+    command: -retentionPeriod=1w
+    restart: unless-stopped
+    volumes:
+      - victoriametrics-data:/victoria-metrics-data
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://victoriametrics:8428/metrics" ]
+      start_period: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 5
+  zettelkasten-exporter:
+    image: ghcr.io/luissimas/zettelkasten-exporter:0.3.4
+    restart: unless-stopped
+    volumes:
+      - ./sample-zettelkasten:/sample
+    environment:
+      LOG_LEVEL: INFO
+      ZETTELKASTEN_DIRECTORY: /sample
+      COLLECTION_INTERVAL: 10s
+      VICTORIAMETRICS_URL: http://victoriametrics:8428
+    depends_on:
+      victoriametrics:
+        condition: service_healthy
