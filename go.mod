@@ -3,7 +3,7 @@ module github.com/luissimas/zettelkasten-exporter
 go 1.24.2
 
 require (
-	github.com/gookit/validate v1.5.4
+	github.com/gookit/validate v1.5.5
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839
 	github.com/knadh/koanf v1.5.0
