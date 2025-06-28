@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zettelkasten-exporter.fullname" . }}
+  labels:
+    {{- include "zettelkasten-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "zettelkasten-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "zettelkasten-exporter.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel }}
+            - name: COLLECTION_INTERVAL
+              value: {{ .Values.collectionInterval }}
+            - name: ZETTELKASTEN_GIT_URL
+              value: {{ .Values.zettelkasten.git.url }}
+            - name: ZETTELKASTEN_GIT_BRANCH
+              value: {{ .Values.zettelkasten.git.branch }}
+            {{- if .Values.zettelkasten.githubToken }}
+            - name: ZETTELKASTEN_GIT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "zettelkasten-exporter.fullname" . }}-env
+                  key: github-token
+            {{- end }}
+            {{- if .Values.vm.enabled }}
+            - name: VICTORIAMETRICS_URL
+              value: "http://{{ .Release.Name }}-vm-server:8428/api/v1/write"
+            {{- end }}

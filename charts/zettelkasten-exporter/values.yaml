@@ -1,0 +1,31 @@
+image:
+  repository: ghcr.io/luissimas/zettelkasten-exporter
+  tag: latest
+
+zettelkasten:
+  git:
+    url: "https://github.com/luissimas/sample-zettelkasten"
+    branch: "main"
+  githubToken: ""
+
+collectionInterval: "5m"
+logLevel: "INFO"
+
+vm:
+  enabled: true
+
+grafana:
+  enabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: VictoriaMetrics
+          type: prometheus
+          url: http://{{ .Release.Name }}-vm-server:8428
+          access: proxy
+          isDefault: true
+  dashboards:
+    default:
+      zettelkasten:
+        file: dashboards/Zettelkasten-VictoriaMetrics.json
