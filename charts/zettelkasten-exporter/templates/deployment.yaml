@@ -27,12 +27,17 @@ spec:
               value: {{ .Values.zettelkasten.git.url }}
             - name: ZETTELKASTEN_GIT_BRANCH
               value: {{ .Values.zettelkasten.git.branch }}
-            {{- if .Values.zettelkasten.githubToken }}
+            {{- if or .Values.zettelkasten.githubToken .Values.zettelkasten.existingSecret.name }}
             - name: ZETTELKASTEN_GIT_TOKEN
               valueFrom:
                 secretKeyRef:
+                  {{- if .Values.zettelkasten.existingSecret.name }}
+                  name: {{ .Values.zettelkasten.existingSecret.name }}
+                  key: {{ .Values.zettelkasten.existingSecret.key }}
+                  {{- else }}
                   name: {{ include "zettelkasten-exporter.fullname" . }}-env
                   key: github-token
+                  {{- end }}
             {{- end }}
             {{- if .Values.vm.enabled }}
             - name: VICTORIAMETRICS_URL

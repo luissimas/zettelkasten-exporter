@@ -6,7 +6,12 @@ zettelkasten:
   git:
     url: "https://github.com/luissimas/sample-zettelkasten"
     branch: "main"
+  # -- Provide a GitHub token as a string (will be base64 encoded)
   githubToken: ""
+  # -- Or, provide the name of an existing secret and the key within it
+  existingSecret:
+    name: ""
+    key: ""
 
 collectionInterval: "5m"
 logLevel: "INFO"
