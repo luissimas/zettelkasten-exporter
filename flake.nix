@@ -21,6 +21,10 @@
             golangci-lint
             gotools
             errcheck
+            kubernetes-helm
+            chart-testing
+            kind
+            act
           ];
         };
       });
