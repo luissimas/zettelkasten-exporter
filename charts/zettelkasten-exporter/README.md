@@ -70,10 +70,15 @@ The following table lists the most common configurable parameters of the chart.
 | ------------------------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | `image.repository`                    | Image repository                                                          | `ghcr.io/luissimas/zettelkasten-exporter`                        |
 | `image.tag`                           | Image tag                                                                 | `latest`                                                       |
+| `zettelkasten.directory`              | The directory where your Zettelkasten is located.                         | `""`                                                           |
 | `zettelkasten.git.url`                | The URL of your Zettelkasten Git repository.                              | `""`                                                           |
+| `zettelkasten.git.branch`             | The branch to checkout.                                                   | `main`                                                         |
 | `zettelkasten.githubToken`            | A base64 encoded GitHub token for private repositories.                   | `""`                                                           |
 | `zettelkasten.existingSecret.name`    | The name of an existing secret containing the GitHub token.               | `""`                                                           |
 | `zettelkasten.existingSecret.key`     | The key within the existing secret that holds the token.                  | `""`                                                           |
+| `zettelkasten.ignoreFiles`            | A list of files to ignore when collecting metrics.                        | `[".git", ".obsidian", ".trash", "README.md"]`                  |
+| `collectionInterval`                  | The interval at which to collect metrics.                                 | `5m`                                                           |
+| `collectHistoricalMetrics`            | Collect historical metrics from the git history.                          | `true`                                                         |
 | `ingress.enabled`                     | Enable or disable the Ingress resource.                                   | `false`                                                        |
 | `victoriaMetrics.enabled`             | Enable or disable the VictoriaMetrics dependency.                         | `true`                                                         |
 | `grafana.enabled`                     | Enable or disable the Grafana dependency.                                 | `true`                                                         |

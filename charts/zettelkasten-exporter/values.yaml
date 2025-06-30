@@ -3,6 +3,8 @@ image:
   tag: latest
 
 zettelkasten:
+  # -- The directory where your Zettelkasten is located.
+  directory: ""
   git:
     url: "https://github.com/luissimas/sample-zettelkasten"
     branch: "main"
@@ -12,8 +14,16 @@ zettelkasten:
   existingSecret:
     name: ""
     key: ""
+  # -- A list of files to ignore when collecting metrics.
+  ignoreFiles:
+    - .git
+    - .obsidian
+    - .trash
+    - README.md
 
 collectionInterval: "5m"
+# -- Collect historical metrics from the git history.
+collectHistoricalMetrics: true
 logLevel: "INFO"
 
 vm:

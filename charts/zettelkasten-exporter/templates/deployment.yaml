@@ -27,10 +27,19 @@ spec:
               value: {{ .Values.logLevel }}
             - name: COLLECTION_INTERVAL
               value: {{ .Values.collectionInterval }}
+            - name: COLLECT_HISTORICAL_METRICS
+              value: {{ .Values.collectHistoricalMetrics | quote }}
+            - name: IGNORE_FILES
+              value: {{ .Values.zettelkasten.ignoreFiles | join "," | quote }}
+            {{- if .Values.zettelkasten.directory }}
+            - name: ZETTELKASTEN_DIRECTORY
+              value: {{ .Values.zettelkasten.directory }}
+            {{- else }}
             - name: ZETTELKASTEN_GIT_URL
               value: {{ .Values.zettelkasten.git.url }}
             - name: ZETTELKASTEN_GIT_BRANCH
               value: {{ .Values.zettelkasten.git.branch }}
+            {{- end }}
             {{- if or .Values.zettelkasten.githubToken .Values.zettelkasten.existingSecret.name }}
             - name: ZETTELKASTEN_GIT_TOKEN
               valueFrom:
