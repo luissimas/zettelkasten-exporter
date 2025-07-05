@@ -40,9 +40,26 @@ jobs:
         run: |
           yq e -i '.version = "${{ steps.get_version.outputs.VERSION }}" | .appVersion = "${{ steps.get_version.outputs.VERSION }}"' charts/zettelkasten-exporter/Chart.yaml
 
-      - name: Package Helm Chart
+      - name: List helm repositories
+        id: list_helm_repos
+        if: steps.list-changed.outputs.changed == 'true'
+        uses: mikefarah/yq@v4.45.4
+        with:
+          cmd: yq e '.dependencies[] | .name + " " + .repository' charts/zettelkasten-exporter/Chart.yaml
+
+      - name: Add helm repositories
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          echo "${{ steps.list_helm_repos.outputs.result }}" | while read -r repo; do
+            helm repo add $repo
+          done
+
+      - name: Build Helm chart dependencies
+        run: helm dependency build ./charts/zettelkasten-exporter
+
+      - name: Package Helm chart
         run: helm package ./charts/zettelkasten-exporter
 
-      - name: Push Helm Chart to GHCR
+      - name: Push Helm chart to GHCR
         run: |
           helm push zettelkasten-exporter-${{ steps.get_version.outputs.VERSION }}.tgz oci://ghcr.io/${{ github.repository_owner }}

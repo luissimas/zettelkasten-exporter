@@ -25,6 +25,7 @@
             chart-testing
             kind
             act
+            svu
           ];
         };
       });
