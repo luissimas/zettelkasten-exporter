@@ -22,8 +22,11 @@ An agent that collects metrics from an zettelkasten and lets you visualize them 
 
 ## Usage
 
-The exporter is distributed as both a binary and a Docker image. The currently documented ways of deploy are via docker compose and Kubernetes. For details about the setup, check out the examples:
+The exporter is distributed as both a binary and a Docker image. For Kubernetes deployments, using the provided Helm chart is the recommended approach, as it simplifies deployment of the exporter and its dependencies (VictoriaMetrics and Grafana).
 
+For details about the setup, check out the documentation:
+
+- [Deploying with Helm](./charts/zettelkasten-exporter/README.md)
 - [Docker compose example](./examples/compose)
 - [Kubernetes example](./examples/kubernetes)
 
