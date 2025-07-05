@@ -23,7 +23,7 @@ It includes options to deploy VictoriaMetrics and Grafana as dependencies for a 
 2.  **Install the Chart:**
 
     ```bash
-    helm install my-release oci://ghcr.io/luissimas/zettelkasten-exporter --version <CHART_VERSION> -f values.yaml
+    helm install my-release oci://ghcr.io/luissimas/zettelkasten-exporter-chart/zettelkasten-exporter --version <CHART_VERSION> -f values.yaml
     ```
 
     Replace `<CHART_VERSION>` with the version you want to deploy. You will still need a `values.yaml` file to configure the Zettelkasten repository URL.
