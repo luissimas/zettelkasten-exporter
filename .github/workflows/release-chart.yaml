@@ -52,11 +52,8 @@ jobs:
             helm repo add $repo
           done
 
-      - name: Build Helm chart dependencies
-        run: helm dependency build ./charts/zettelkasten-exporter
-
       - name: Package Helm chart
-        run: helm package ./charts/zettelkasten-exporter
+        run: helm package ./charts/zettelkasten-exporter --dependency-update
 
       - name: Push Helm chart to GHCR
         run: |
