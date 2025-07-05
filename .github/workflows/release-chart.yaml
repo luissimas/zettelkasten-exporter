@@ -57,4 +57,4 @@ jobs:
 
       - name: Push Helm chart to GHCR
         run: |
-          helm push zettelkasten-exporter-${{ steps.get_version.outputs.VERSION }}.tgz oci://ghcr.io/${{ github.repository_owner }}
+          helm push zettelkasten-exporter-${{ steps.get_version.outputs.VERSION }}.tgz oci://ghcr.io/${{ github.repository_owner }}/zettelkasten-exporter-chart
