@@ -54,5 +54,5 @@ spec:
             {{- end }}
             {{- if .Values.vm.enabled }}
             - name: VICTORIAMETRICS_URL
-              value: "http://{{ .Release.Name }}-vm-server:8428/api/v1/write"
+              value: "http://{{ .Release.Name }}-vm-server:8428"
             {{- end }}
