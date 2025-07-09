@@ -1,11 +1,15 @@
 Your Zettelkasten Exporter has been deployed.
 
+{{- if .Values.grafana.ingress.enabled }}
+To access your Grafana dashboard, head over to http://{{ index .Values.grafana.ingress.hosts 0 }}
+{{- else }}
 To access your Grafana dashboard, run the following command:
 
   export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name=grafana,app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000
 
 After that, grafana will be accessible at http://localhost:3000
+{{- end }}
 
 Login with the username 'admin' and the password from the following command:
 
