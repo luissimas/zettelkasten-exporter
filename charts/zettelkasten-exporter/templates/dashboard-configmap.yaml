@@ -1,0 +1,12 @@
+{{- if .Values.grafana.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zettelkasten-dashboard
+  labels:
+    {{- include "zettelkasten-exporter.labels" . | nindent 4 }}
+    grafana_dashboard: "1"
+data:
+  zettelkasten.json: |-
+{{ .Files.Get "dashboards/Zettelkasten-VictoriaMetrics.json" | indent 4 }}
+{{- end }}
