@@ -28,6 +28,9 @@ logLevel: "INFO"
 
 vm:
   enabled: true
+  server:
+    # -- 5y
+    retentionPeriod: 60
 
 grafana:
   enabled: true
