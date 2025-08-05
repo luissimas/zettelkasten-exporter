@@ -40,7 +40,7 @@ jobs:
       - name: List helm repositories
         id: list_helm_repos
         if: steps.list-changed.outputs.changed == 'true'
-        uses: mikefarah/yq@v4.45.4
+        uses: mikefarah/yq@v4.47.1
         with:
           cmd: yq e '.dependencies[] | .name + " " + .repository' charts/zettelkasten-exporter/Chart.yaml
 
