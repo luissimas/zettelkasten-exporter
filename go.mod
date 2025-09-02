@@ -7,7 +7,7 @@ require (
 	github.com/influxdata/influxdb-client-go/v2 v2.14.0
 	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839
 	github.com/knadh/koanf v1.5.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 	github.com/testcontainers/testcontainers-go v0.37.0
 	github.com/yuin/goldmark v1.7.9
 	go.abhg.dev/goldmark/wikilink v0.5.0
