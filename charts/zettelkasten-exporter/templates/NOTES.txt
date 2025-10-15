@@ -1,6 +1,6 @@
 Your Zettelkasten Exporter has been deployed.
 
-{{- if .Values.grafana.ingress.enabled }}
+{{- if and .Values.grafana .Values.grafana.ingress .Values.grafana.ingress.enabled }}
 To access your Grafana dashboard, head over to http://{{ index .Values.grafana.ingress.hosts 0 }}
 {{- else }}
 To access your Grafana dashboard, run the following command:
